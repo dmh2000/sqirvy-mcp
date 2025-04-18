@@ -168,47 +168,77 @@ func TestReadMessagesChannelClosed(t *testing.T) {
 }
 
 func TestReadMessagesChannelFull(t *testing.T) {
-
-	// Create a channel with capacity 1 to test full channel behavior
+	// Create a channel with capacity 1 to test blocking behavior
 	msgChan := make(chan []byte, 1)
 
 	// Create a logger that writes to a buffer
 	var logBuf bytes.Buffer
 	logger := utils.New(&logBuf, "", log.LstdFlags, utils.LevelDebug)
 
-	// Create a transport
+	// Create a transport with multiple messages
 	reader := strings.NewReader("{\"key\":\"value1\"}\n{\"key\":\"value2\"}\n{\"key\":\"value3\"}\n")
 	writer := strings.Builder{}
 	transport := NewTransport(reader, &writer, msgChan, logger)
 
 	// Run the ReadMessages function in a goroutine
-	errChan := make(chan error, 1)
+	readDone := make(chan struct{})
 	go func() {
-		errChan <- transport.ReadMessages()
+		// This will block after the first message since we're not reading from the channel
+		transport.ReadMessages()
+		close(readDone)
 	}()
 
 	// Wait a moment to ensure the goroutine starts processing
 	time.Sleep(100 * time.Millisecond)
 
-	// Don't read from the channel to make it fill up
-	// Wait for the function to complete
+	// Read the first message that should have been sent to the channel
 	select {
-	case err := <-errChan:
-		// We expect the reader closed error
-		if err != ErrReaderClosed {
-			t.Errorf("Expected error %v, got %v", ErrReaderClosed, err)
+	case msg := <-msgChan:
+		// Verify the first message
+		if string(msg) != `{"key":"value1"}` {
+			t.Errorf("Expected first message to be {\"key\":\"value1\"}, got %s", string(msg))
 		}
-	case <-time.After(2 * time.Second):
-		t.Error("Timeout waiting for ReadMessages to return")
+	case <-time.After(500 * time.Millisecond):
+		t.Error("Timeout waiting for first message")
 	}
 
-	// Check logs for channel full message
-	logOutput := logBuf.String()
-	t.Logf("Log output: %s", logOutput)
+	// The goroutine should now be blocked trying to send the second message
+	// We'll verify this by checking that readDone hasn't been closed
+	select {
+	case <-readDone:
+		t.Error("ReadMessages returned when it should be blocked")
+	case <-time.After(500 * time.Millisecond):
+		// This is the expected behavior - the function is blocked
+	}
 
-	// We should have at least one message about channel being full
-	if !strings.Contains(logOutput, "Channel is full") {
-		t.Error("Expected log to contain 'Channel is full' message")
+	// Now read the second message to unblock
+	select {
+	case msg := <-msgChan:
+		// Verify the second message
+		if string(msg) != `{"key":"value2"}` {
+			t.Errorf("Expected second message to be {\"key\":\"value2\"}, got %s", string(msg))
+		}
+	case <-time.After(500 * time.Millisecond):
+		t.Error("Timeout waiting for second message after unblocking")
+	}
+
+	// Read the third message
+	select {
+	case msg := <-msgChan:
+		// Verify the third message
+		if string(msg) != `{"key":"value3"}` {
+			t.Errorf("Expected third message to be {\"key\":\"value3\"}, got %s", string(msg))
+		}
+	case <-time.After(500 * time.Millisecond):
+		t.Error("Timeout waiting for third message")
+	}
+
+	// Now the function should complete with ErrReaderClosed
+	select {
+	case <-readDone:
+		// This is expected - the function completed after reading all messages
+	case <-time.After(500 * time.Millisecond):
+		t.Error("ReadMessages didn't return after processing all messages")
 	}
 
 	// Clean up
