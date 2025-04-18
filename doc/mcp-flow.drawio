@@ -1,0 +1,150 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36" version="26.2.13">
+  <diagram name="Page-1" id="CNjtrmU3WbDlpZcV8n7X">
+    <mxGraphModel dx="919" dy="926" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-20" value="" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="800" height="780" as="geometry" />
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-30" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="aHsx0-igbcW8qf2o8ix_-16" target="-iG8F86qC787wPcKdeDR-1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="380" y="790" as="sourcePoint" />
+            <mxPoint x="450" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-9" value="" style="endArrow=none;html=1;rounded=0;" parent="1" target="-iG8F86qC787wPcKdeDR-2" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="189" y="790" as="sourcePoint" />
+            <mxPoint x="449" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-1" value="AGENT" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="160" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-2" value="MCP-SERVER" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="119" y="160" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-3" value="LLM" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="520" y="160" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="-iG8F86qC787wPcKdeDR-5" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="180" y="256" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="380" y="296" as="targetPoint" />
+            <mxPoint x="239" y="295.9999999999998" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-6" value="Initialize Response" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="119" y="282" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-12" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" edge="1" target="-iG8F86qC787wPcKdeDR-3" source="-iG8F86qC787wPcKdeDR-18">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="585" y="790" as="sourcePoint" />
+            <mxPoint x="575" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="-iG8F86qC787wPcKdeDR-14" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="180" y="385" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-14" value="tools/list request" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="330" y="370" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="-iG8F86qC787wPcKdeDR-16" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="380" y="434.9310344827586" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-16" value="tools/list response" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="129" y="420" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-5" value="Initialize Request" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="241" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="-iG8F86qC787wPcKdeDR-28" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="180" y="335" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-28" value="notify initialized" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="327" y="320" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-1" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;LLMs are stateless, they have no memory of prior queries.&amp;nbsp;&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;The agent is responsible for packaging the required context for each message it sends to the LLM.&amp;nbsp;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;The LLM does not access the MCP server(s) directly. The Agent acts as the intermediary between the LLM and the MCP server&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="620" y="210" width="200" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aHsx0-igbcW8qf2o8ix_-2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="580" y="486" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-4" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" target="-iG8F86qC787wPcKdeDR-18">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="585" y="790" as="sourcePoint" />
+            <mxPoint x="575" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="-iG8F86qC787wPcKdeDR-18">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="380" y="543" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-iG8F86qC787wPcKdeDR-18" value="LLM responds with request to get data from the agent" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="520" y="513" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-2" value="send query with context that includes&amp;nbsp; a tool specification" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="461" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aHsx0-igbcW8qf2o8ix_-7">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="190" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-7" value="request data from MCP server" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="560" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aHsx0-igbcW8qf2o8ix_-9">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="380" y="625" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-9" value="respond with data" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="128" y="610" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aHsx0-igbcW8qf2o8ix_-11">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="580" y="660" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-11" value="send query with requested data" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="640" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aHsx0-igbcW8qf2o8ix_-13">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="380" y="720" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-13" value="LLM responds to query&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="700" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-17" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" target="aHsx0-igbcW8qf2o8ix_-16">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="380" y="790" as="sourcePoint" />
+            <mxPoint x="380" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-16" value="agent does something with the response" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="760" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="aHsx0-igbcW8qf2o8ix_-18" value="uses the same message flow for resources and prompts" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="840" width="280" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
