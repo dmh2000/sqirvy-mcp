@@ -84,14 +84,8 @@ func (t *TransportImpl) ReadMessages() error {
 				}
 			}()
 
-			// Try a non-blocking send
-			select {
-			case t.msgChan <- msgBytes:
-				// Message sent successfully
-			default:
-				// Channel is full, log and discard the message
-				t.logger.Printf(utils.LevelInfo, "Channel is full, discarding message: %s", msg)
-			}
+			// Use a blocking send - will wait if channel is full
+			t.msgChan <- msgBytes
 		}()
 
 		// Check if the channel is closed
