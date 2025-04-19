@@ -209,6 +209,7 @@ func TestReadMessagesChannelFull(t *testing.T) {
 		t.Error("ReadMessages returned when it should be blocked")
 	case <-time.After(500 * time.Millisecond):
 		// This is the expected behavior - the function is blocked
+		t.Log("ReadMessages is blocked")
 	}
 
 	// Now read the second message to unblock
