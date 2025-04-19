@@ -32,6 +32,11 @@ type TransportImpl struct {
 	mu      sync.Mutex
 }
 
+// NewTransport creates a new Transport instance from the provided reader, writer, message channel, and logger.
+// The returned Transport instance will read messages from the reader, validate them as JSON, and send them to the channel.
+// The Transport instance will also write messages from the channel to the writer.
+// The logger is used to log any errors encountered when reading, validating, or sending messages.
+// The mutex is used to synchronize access to the writer.
 func NewTransport(reader io.Reader, writer io.Writer, msgChan chan<- []byte, logger *utils.Logger) Transport {
 	return &TransportImpl{
 		reader:  reader,
