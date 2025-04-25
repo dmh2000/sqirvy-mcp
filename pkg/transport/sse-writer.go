@@ -140,9 +140,8 @@ func (s *SSEWriter) handleSSEConnection(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Keep the connection open until the client disconnects
-	time.Sleep(30 * time.Second)
 	ctx := r.Context()
-	<-ctx.Done()
+	<-ctx.Done() // Wait for the client to close the connection or the server to shut down
 
 	s.logger.Printf(utils.LevelInfo, "SSE client disconnected: %s", r.RemoteAddr)
 

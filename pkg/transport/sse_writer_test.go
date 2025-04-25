@@ -275,9 +275,15 @@ func TestSSEWriter_ClientDisconnect(t *testing.T) {
 		t.Fatalf("Expected status OK, got %s", resp.Status)
 	}
 
-	time.Sleep(5 * time.Second)
+	// Wait for the connection to be fully established on the server side
+	// before closing it, ensuring the handler is ready.
+	ctxConnect, cancelConnect := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancelConnect()
+	if err := sseWriter.WaitForConnection(ctxConnect); err != nil {
+		t.Fatalf("WaitForConnection failed before disconnect: %v", err)
+	}
 
-	// Don't read body, just close it to simulate disconnect
+	// Close the response body to simulate disconnect
 	resp.Body.Close()
 
 	// Give server time to process disconnect
