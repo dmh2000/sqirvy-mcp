@@ -2,6 +2,7 @@
 package transport
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -173,28 +174,13 @@ func (s *sseServerInstance) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Create the writer for this specific client connection
 		clientWriter := &sseResponseWriter{w: w, f: flusher}
 
-		// Send the writer to the application, handle potential closed channel
-		select {
-		case writerChan <- clientWriter:
-			log.Printf("SSE client connected on GET %s, writer provided.", path)
-			// Keep the connection open until the client disconnects
-			<-r.Context().Done()
-			log.Printf("SSE client disconnected on GET %s.", path)
-		case <-s.stopped:
-			log.Printf("Server stopping, cannot provide writer for GET %s.", path)
-			// Server is stopping, don't block, just return
-		default:
-			// If the channel buffer is full (if any), or receiver is slow.
-			// This indicates an issue in the consuming application.
-			// We might log this, but the connection is established.
-			// For simplicity, we assume the channel is ready.
-			// A more robust implementation might use a timeout or non-blocking send.
-			log.Printf("Warning: SSE writer channel for GET %s might be blocked or full.", path)
-			// Still wait for disconnect
-			<-r.Context().Done()
-			log.Printf("SSE client disconnected on GET %s (channel potentially blocked).", path)
-
-		}
+		// Send the writer to the application
+		writerChan <- clientWriter
+		log.Printf("SSE client connected on GET %s, writer provided.", path)
+		
+		// Keep the connection open until the client disconnects
+		<-r.Context().Done()
+		log.Printf("SSE client disconnected on GET %s.", path)
 		return
 	}
 
@@ -215,21 +201,24 @@ func (s *sseServerInstance) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// 	return
 		// }
 
-		// Send the request body to the application channel
-		// The application is responsible for reading and closing the body.
-		select {
-		case readerChan <- r.Body:
-			log.Printf("Received POST on %s, body provided to reader channel.", path)
-			// Respond immediately assuming async processing by the application
-			w.WriteHeader(http.StatusAccepted) // 202 Accepted
-		case <-s.stopped:
-			log.Printf("Server stopping, cannot provide reader for POST %s.", path)
-			http.Error(w, "Server shutting down", http.StatusServiceUnavailable)
-		default:
-			// Channel likely blocked or full.
-			log.Printf("Warning: Reader channel for POST %s might be blocked or full.", path)
-			http.Error(w, "Server busy, try again later", http.StatusServiceUnavailable)
+		// Create a buffer to hold the entire request body
+		bodyBytes, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+			log.Printf("Error reading request body: %v", err)
+			return
 		}
+		r.Body.Close() // Close the original body
+		
+		// Create a new ReadCloser from the buffered data
+		bodyReader := io.NopCloser(bytes.NewReader(bodyBytes))
+		
+		// Send the buffered body to the application channel
+		readerChan <- bodyReader
+		log.Printf("Received POST on %s, body provided to reader channel.", path)
+		
+		// Respond immediately assuming async processing by the application
+		w.WriteHeader(http.StatusAccepted) // 202 Accepted
 		return
 	}
 
@@ -252,17 +241,16 @@ func NewSSEReader(port int, path string) (<-chan io.ReadCloser, func() error, er
 	instance.mu.Lock()
 	defer instance.mu.Unlock()
 
-	// Check if a reader channel already exists for this path
+	// Check if this path is already configured for any purpose
 	if _, exists := instance.readerChannels[path]; exists {
-		// This path is already configured for reading POSTs.
-		// Return the existing channel or handle as an error?
-		// For now, let's return an error to avoid ambiguity.
-		// Alternatively, could return the existing channel if idempotent setup is desired.
 		return nil, nil, fmt.Errorf("path %s on port %d is already configured for reading", path, port)
+	}
+	if _, exists := instance.writerChannels[path]; exists {
+		return nil, nil, fmt.Errorf("path %s on port %d is already configured for writing", path, port)
 	}
 
 	// Create and store the channel for this path
-	readerChan := make(chan io.ReadCloser, 1) // Buffer 1 to allow handler to send before receiver is ready
+	readerChan := make(chan io.ReadCloser, 5) // Increased buffer size to handle multiple requests
 	instance.readerChannels[path] = readerChan
 
 	// The handler is part of the instance's ServeHTTP method now.
@@ -290,13 +278,16 @@ func NewSSEWriter(port int, path string) (<-chan io.Writer, func() error, error)
 	instance.mu.Lock()
 	defer instance.mu.Unlock()
 
-	// Check if a writer channel already exists for this path
+	// Check if this path is already configured for any purpose
 	if _, exists := instance.writerChannels[path]; exists {
 		return nil, nil, fmt.Errorf("path %s on port %d is already configured for writing", path, port)
 	}
+	if _, exists := instance.readerChannels[path]; exists {
+		return nil, nil, fmt.Errorf("path %s on port %d is already configured for reading", path, port)
+	}
 
 	// Create and store the channel for this path
-	writerChan := make(chan io.Writer, 1) // Buffer 1? Consider implications. Allows handler to send before app reads.
+	writerChan := make(chan io.Writer, 5) // Increased buffer size to handle multiple connections
 	instance.writerChannels[path] = writerChan
 
 	// The handler is part of the instance's ServeHTTP method now.
