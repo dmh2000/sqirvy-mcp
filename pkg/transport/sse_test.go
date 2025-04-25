@@ -2,11 +2,6 @@ package transport
 
 import (
 	"bytes"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"context"
 	"fmt"
 	"io"
 	"log"
