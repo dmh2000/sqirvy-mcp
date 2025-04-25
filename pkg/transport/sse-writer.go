@@ -125,7 +125,7 @@ func (s *SSEWriter) handleSSEConnection(w http.ResponseWriter, r *http.Request) 
 	}{w, flusher}:
 		s.logger.Printf(utils.LevelDebug, "Sent writer/flusher to connChan for %s", r.RemoteAddr)
 	default:
-		s.logger.Printf(utils.LevelWarning, "connChan is full or closed. Ignoring new connection from %s", r.RemoteAddr)
+		s.logger.Printf(utils.LevelWarning, "connChan is full or closed. Ignoring new connection from %s", r.RemoteAddr) // Use LevelWarning
 		// Optionally close the connection immediately or send an error
 		http.Error(w, "Server busy, try again later", http.StatusServiceUnavailable)
 		return
@@ -175,7 +175,7 @@ func (s *SSEWriter) Write(p []byte) (n int, err error) {
 		select {
 		case connInfo, ok := <-s.connChan:
 			if !ok {
-				s.logger.Printf(utils.LevelWarning, "Write failed: connChan closed during wait")
+				s.logger.Printf(utils.LevelWarning, "Write failed: connChan closed during wait") // Use LevelWarning
 				return 0, io.ErrClosedPipe // Or a more specific error
 			}
 			s.logger.Printf(utils.LevelDebug, "Received connection from connChan.")
@@ -192,7 +192,7 @@ func (s *SSEWriter) Write(p []byte) (n int, err error) {
 	// Check again after potentially waiting
 	if s.writer == nil || s.flusher == nil {
 		// This might happen if shutdown occurred while waiting
-		s.logger.Printf(utils.LevelWarning, "Write failed: No active connection after wait")
+		s.logger.Printf(utils.LevelWarning, "Write failed: No active connection after wait") // Use LevelWarning
 		return 0, io.ErrClosedPipe
 	}
 
@@ -226,7 +226,7 @@ func (s *SSEWriter) WaitForConnection(ctx context.Context) error {
 		s.logger.Printf(utils.LevelInfo, "First SSE client connection established.")
 		return nil
 	case <-ctx.Done():
-		s.logger.Printf(utils.LevelWarning, "Context cancelled while waiting for connection: %v", ctx.Err())
+		s.logger.Printf(utils.LevelWarning, "Context cancelled while waiting for connection: %v", ctx.Err()) // Use LevelWarning
 		return ctx.Err()
 	}
 }

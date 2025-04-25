@@ -10,16 +10,18 @@ import (
 
 // Define valid log level strings
 const (
-	LevelDebug = "DEBUG" // Most verbose level - logs DEBUG, INFO, and ERROR messages
-	LevelInfo  = "INFO"  // Default level - logs INFO and ERROR messages
-	LevelError = "ERROR" // Least verbose level - logs only ERROR messages
+	LevelDebug   = "DEBUG"   // Most verbose level - logs DEBUG, INFO, WARNING, and ERROR messages
+	LevelInfo    = "INFO"    // Logs INFO, WARNING, and ERROR messages
+	LevelWarning = "WARNING" // Logs WARNING and ERROR messages
+	LevelError   = "ERROR"   // Least verbose level - logs only ERROR messages
 )
 
 // Define numeric values for log levels (lower value = higher priority/more verbose)
 var logLevelValues = map[string]int{
-	LevelDebug: 1,
-	LevelInfo:  2,
-	LevelError: 3,
+	LevelDebug:   1,
+	LevelInfo:    2,
+	LevelWarning: 3,
+	LevelError:   4,
 }
 
 // Logger wraps the standard Go logger to provide level-based logging.
@@ -29,7 +31,7 @@ type Logger struct {
 }
 
 // New creates a new Logger instance.
-// It takes an output writer, prefix string, standard log flags, and the minimum level string ("DEBUG", "INFO", or "ERROR") to output.
+// It takes an output writer, prefix string, standard log flags, and the minimum level string ("DEBUG", "INFO", "WARNING", or "ERROR") to output.
 // Defaults to "INFO" if an invalid level string is provided.
 func New(out io.Writer, prefix string, flag int, level string) *Logger {
 	normalizedLevel := strings.ToUpper(level)
@@ -43,7 +45,7 @@ func New(out io.Writer, prefix string, flag int, level string) *Logger {
 	}
 }
 
-// SetLevel changes the minimum logging level for the logger using a string ("DEBUG", "INFO", or "ERROR").
+// SetLevel changes the minimum logging level for the logger using a string ("DEBUG", "INFO", "WARNING", or "ERROR").
 // Defaults to "INFO" if an invalid level string is provided.
 func (l *Logger) SetLevel(level string) {
 	normalizedLevel := strings.ToUpper(level)
@@ -55,7 +57,7 @@ func (l *Logger) SetLevel(level string) {
 }
 
 // shouldLog checks if a message with the given level string should be logged based on the logger's current level.
-// Logging is hierarchical: DEBUG logs everything, INFO logs INFO and ERROR, ERROR logs only ERROR.
+// Logging is hierarchical: DEBUG logs everything, INFO logs INFO/WARNING/ERROR, WARNING logs WARNING/ERROR, ERROR logs only ERROR.
 func (l *Logger) shouldLog(messageLevel string) bool {
 	// Normalize case for comparison
 	normalizedMessageLevel := strings.ToUpper(messageLevel)
@@ -78,18 +80,25 @@ func (l *Logger) shouldLog(messageLevel string) bool {
 	// -------------|---------------|---------------|--------
 	// DEBUG (1)    | DEBUG (1)     | 1 >= 1        | Yes
 	// DEBUG (1)    | INFO (2)      | 2 >= 1        | Yes
-	// DEBUG (1)    | ERROR (3)     | 3 >= 1        | Yes
+	// DEBUG (1)    | WARNING (3)   | 3 >= 1        | Yes
+	// DEBUG (1)    | ERROR (4)     | 4 >= 1        | Yes
 	// INFO (2)     | DEBUG (1)     | 1 >= 2        | No
 	// INFO (2)     | INFO (2)      | 2 >= 2        | Yes
-	// INFO (2)     | ERROR (3)     | 3 >= 2        | Yes
-	// ERROR (3)    | DEBUG (1)     | 1 >= 3        | No
-	// ERROR (3)    | INFO (2)      | 2 >= 3        | No
-	// ERROR (3)    | ERROR (3)     | 3 >= 3        | Yes
+	// INFO (2)     | WARNING (3)   | 3 >= 2        | Yes
+	// INFO (2)     | ERROR (4)     | 4 >= 2        | Yes
+	// WARNING (3)  | DEBUG (1)     | 1 >= 3        | No
+	// WARNING (3)  | INFO (2)      | 2 >= 3        | No
+	// WARNING (3)  | WARNING (3)   | 3 >= 3        | Yes
+	// WARNING (3)  | ERROR (4)     | 4 >= 3        | Yes
+	// ERROR (4)    | DEBUG (1)     | 1 >= 4        | No
+	// ERROR (4)    | INFO (2)      | 2 >= 4        | No
+	// ERROR (4)    | WARNING (3)   | 3 >= 4        | No
+	// ERROR (4)    | ERROR (4)     | 4 >= 4        | Yes
 	return messageLevelValue >= loggerLevelValue
 }
 
 // Printf logs a formatted string if the message level is appropriate based on the logger's level.
-// The first argument is the level string ("DEBUG", "INFO", or "ERROR").
+// The first argument is the level string ("DEBUG", "INFO", "WARNING", or "ERROR").
 // See shouldLog for details on which levels are logged.
 func (l *Logger) Printf(level string, format string, v ...interface{}) {
 	if l.shouldLog(level) {
@@ -99,7 +108,7 @@ func (l *Logger) Printf(level string, format string, v ...interface{}) {
 }
 
 // Println logs a line if the message level is appropriate based on the logger's level.
-// The first argument is the level string ("DEBUG", "INFO", or "ERROR").
+// The first argument is the level string ("DEBUG", "INFO", "WARNING", or "ERROR").
 // See shouldLog for details on which levels are logged.
 func (l *Logger) Println(level string, v ...interface{}) {
 	if l.shouldLog(level) {
@@ -109,7 +118,7 @@ func (l *Logger) Println(level string, v ...interface{}) {
 }
 
 // Fatalf logs a formatted string and then calls os.Exit(1), regardless of the configured log level.
-// The first argument is the level string ("DEBUG", "INFO", or "ERROR"), but it's mainly for consistency.
+// The first argument is the level string ("DEBUG", "INFO", "WARNING", or "ERROR"), but it's mainly for consistency.
 // Fatal messages are always output.
 func (l *Logger) Fatalf(level string, format string, v ...interface{}) {
 	// Fatal messages are always logged, regardless of level setting.
@@ -118,7 +127,7 @@ func (l *Logger) Fatalf(level string, format string, v ...interface{}) {
 }
 
 // Fatalln logs a line and then calls os.Exit(1), regardless of the configured log level.
-// The first argument is the level string ("DEBUG", "INFO", or "ERROR"), but it's mainly for consistency.
+// The first argument is the level string ("DEBUG", "INFO", "WARNING", or "ERROR"), but it's mainly for consistency.
 // Fatal messages are always output.
 func (l *Logger) Fatalln(level string, v ...interface{}) {
 	// Fatal messages are always logged, regardless of level setting.
