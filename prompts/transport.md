@@ -1,6 +1,6 @@
 in file pkg/transport/transport.go, create:
 
-1. a function that receives three arguments, a standard go byte 'reader', a  buffered channel and a logge, and returns an error if any
+1. a function that receives three arguments, a standard go byte 'reader', a  buffered channel and a logger, and returns an error if any
 2. the function will enter a continuous loop, reading messages and sending them to the channel.
 3. a messages is a stream of bytes that is delimited by a '\n' newline.
 4. the function will read  bytes until a newline is encountered, then the function will do the following
@@ -15,3 +15,6 @@ in file pkg/transport/transport.go, create:
 13. if the reader is closed, return an error, indicating the reader is closed
 14. if the reader is not closed, continue reading
 
+@/pkg/transport    in directory pkg/transport, create a new file 'sse.go' that has a function 'NewSSE' that takes an IP address and a port, and initializes a Server Side Event stream, and returns a reader and write connected to that stream
+
+in directory pkg/transport, in  file 'stdio.go' that has a function 'NewStdio' that opens input and output from stdin and stdout, and returns a reader and writer set up for those input and output streams
