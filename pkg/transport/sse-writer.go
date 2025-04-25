@@ -33,6 +33,16 @@ type SSEWriter struct {
 	server *http.Server
 }
 
+func (s *SSEWriter) writerServer() {
+	// Start the server in a goroutine
+	go func() {
+		defer close(s.shutdownComplete)
+		if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			s.logger.Printf(utils.LevelError, "SSE server ListenAndServe error: %v", err)
+		}
+	}()
+}
+
 // NewSSEWriter creates and starts an HTTP server listening for a single SSE connection
 // on the specified address and path. It returns an SSEWriter instance
 // which acts as an io.Writer to send messages to the connected client.
@@ -51,6 +61,7 @@ func NewSSEWriter(addr string, path string, logger *utils.Logger) (*SSEWriter, f
 			writer  http.ResponseWriter
 			flusher http.Flusher
 		}, 1),
+
 		connected:        make(chan struct{}),
 		shutdownComplete: make(chan struct{}),
 	}
@@ -66,12 +77,7 @@ func NewSSEWriter(addr string, path string, logger *utils.Logger) (*SSEWriter, f
 
 	// Start the server in a goroutine
 	go func() {
-		defer close(sseWriter.shutdownComplete)
-		logger.Printf(utils.LevelInfo, "Starting SSE server on %s%s", addr, path)
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Printf(utils.LevelError, "SSE server ListenAndServe error: %v", err)
-		}
-		logger.Printf(utils.LevelInfo, "SSE server on %s stopped", addr)
+		sseWriter.writerServer()
 	}()
 
 	// Return the writer and a shutdown function
@@ -99,22 +105,9 @@ func (s *SSEWriter) handleSSEConnection(w http.ResponseWriter, r *http.Request) 
 		s.logger.Printf(utils.LevelInfo, "Rejected connection from %s: incorrect Accept header '%s'", r.RemoteAddr, r.Header.Get("Accept"))
 		return
 	}
-
-	// Set SSE headers
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("Access-Control-Allow-Origin", "*") // Allow CORS for testing/flexibility
-
-	// Get the Flusher interface
-	flusher, ok := w.(http.Flusher)
-	if !ok {
-		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
-		s.logger.Printf(utils.LevelError, "Could not get http.Flusher for connection from %s", r.RemoteAddr)
-		return
-	}
-
 	s.logger.Printf(utils.LevelInfo, "SSE client connected: %s", r.RemoteAddr)
+
+	w.Header().Set("Content-Type", "text/event-stream")
 
 	// Send the writer and flusher to the SSEWriter instance
 	// Use a select with a default to prevent blocking if the channel is full
@@ -123,7 +116,7 @@ func (s *SSEWriter) handleSSEConnection(w http.ResponseWriter, r *http.Request) 
 	case s.connChan <- struct {
 		writer  http.ResponseWriter
 		flusher http.Flusher
-	}{w, flusher}:
+	}{w, w.(http.Flusher)}:
 		s.logger.Printf(utils.LevelDebug, "Sent writer/flusher to connChan for %s", r.RemoteAddr)
 	default:
 		// This case should ideally not happen if only one client connects.
@@ -143,26 +136,38 @@ func (s *SSEWriter) handleSSEConnection(w http.ResponseWriter, r *http.Request) 
 		s.logger.Printf(utils.LevelDebug, "Closed 'connected' channel.")
 	}
 
-	// Keep the connection open until the client disconnects
-	ctx := r.Context()
-	<-ctx.Done() // Wait for the client to close the connection or the server to shut down
-
-	s.logger.Printf(utils.LevelInfo, "SSE client disconnected: %s", r.RemoteAddr)
-
-	// Clear the writer and flusher when the client disconnects
-	s.mu.Lock()
-	// Only clear if this was the active connection
-	if s.writer == w {
-		s.writer = nil
-		s.flusher = nil
-		s.logger.Printf(utils.LevelDebug, "Cleared active writer/flusher for disconnected client %s", r.RemoteAddr)
-		// Note: This SSEWriter instance handles only one connection lifecycle.
-		// If the client disconnects and reconnects, a new SSEWriter instance
-		// would typically be needed, or this one would need more complex logic
-		// to reset its state (e.g., reopen `connected` and clear `connChan`).
-		// The current design assumes a single, persistent connection for the writer's lifetime.
+	for {
+		time.Sleep(1 * time.Second)
 	}
-	s.mu.Unlock()
+	// // Keep the connection open until the client disconnects
+	// ctx := r.Context()
+	// done := false
+	// for !done {
+	// 	select {
+	// 	case <-ctx.Done():
+
+	// 	default:
+	// 		time.Sleep(1 * time.Second)
+	// 	}
+	// }
+	// // <-ctx.Done() // Wait for the client to close the connection or the server to shut down
+
+	// s.logger.Printf(utils.LevelInfo, "SSE client disconnected: %s", r.RemoteAddr)
+
+	// // Clear the writer and flusher when the client disconnects
+	// s.mu.Lock()
+	// // Only clear if this was the active connection
+	// if s.writer == w {
+	// 	s.writer = nil
+	// 	s.flusher = nil
+	// 	s.logger.Printf(utils.LevelDebug, "Cleared active writer/flusher for disconnected client %s", r.RemoteAddr)
+	// 	// Note: This SSEWriter instance handles only one connection lifecycle.
+	// 	// If the client disconnects and reconnects, a new SSEWriter instance
+	// 	// would typically be needed, or this one would need more complex logic
+	// 	// to reset its state (e.g., reopen `connected` and clear `connChan`).
+	// 	// The current design assumes a single, persistent connection for the writer's lifetime.
+	// }
+	// s.mu.Unlock()
 }
 
 // Write sends data formatted as an SSE 'data' event to the single connected client.

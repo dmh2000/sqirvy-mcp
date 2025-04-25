@@ -20,10 +20,12 @@ in new file pkg/transport/sse.go, create a function, NewSSEReader, this function
 
 in file pkg/transport/sse.go, add a function, NewSSEWriter that implements the server to client side of the SSE transport. The function that is given an ip address, a port and a path. This function will create a function closure over the ip address, port and path, and return that function closure. the function closure will return an io.writer function that when called, will send a Post request to the ip, port and path, with the mime type application/json.
 
-I think the code in sse.go is too complex. I want to completely refactor it. 
-1. remove all existing code in see.go
-2. create a function that creates a server that listens for the SSE GET request from the client. it shold starts the server in a go routine, and forward any data it receives through a channel to a function that implements a reader. return the reader to the caller. do not do anything for the post request yet.
 
-sse.go line 52: should use a simple channel send/receive instead of select with a single case 
+you are creating the server endpoints that implement an mcp server using the Server Side Events protocol.
+1. create file pkg/transport/sse-writer.go. this is the mcp server endpoint that waits for a GET request from the MCP client to open . create a function that creates a server that listens for the SSE GET request from the client. it should start the server in a go routine, and returns a writer so the mcp server can send json-rpc messages to the mcp client. It should export a function NewSSEWriter that takes an ip address, a port and path and returns a writer and any other parameters it needs. 
+2. create a file pkg/transport/sse_writer_test.go that implements tests for the mcp writer.
 
-create new file pkg/transport/sse_writer.go,  in this file, implement a function  NewSSEWriter. this function will receive an ip, a port and a path. it will return a custom io.writer. this io.writer will take its input data and send an SSE POST request to the specified endpoint.
+1. create afile pkg/transport/sse-reader.go. this is the mcp server endpoint that receives POST requests from the mcp client. create a function that creates a server that listens for the POST requests containing json-rpc messages, from the mcp client and returns an io.reader that forwards the incoming messages to the mcp server handlers. It should export a function NewSSEWriter that receives an ip address, a port and a path and returns an io.writer and any other parameters it needs.
+2. create a file pkg/transport/sse_reader_test.go that implements tests for the mcp reader
+
+

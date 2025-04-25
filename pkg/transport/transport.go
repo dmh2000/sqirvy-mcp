@@ -11,7 +11,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/dmh2000/sqirvy-mcp/pkg/utils"
+	utils "sqirvy-mcp/pkg/utils"
 )
 
 // Common errors

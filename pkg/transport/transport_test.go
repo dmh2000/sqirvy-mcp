@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dmh2000/sqirvy-mcp/pkg/utils"
+	utils "sqirvy-mcp/pkg/utils"
 )
 
 func TestReadMessages(t *testing.T) {
