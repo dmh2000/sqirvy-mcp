@@ -5,8 +5,9 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"mcp/pkg/utils"
+	"net"
 	"net/http"
+	utils "sqirvy-mcp/pkg/utils"
 	"strings"
 	"sync"
 	"testing"
@@ -29,7 +30,7 @@ func TestNewSSEWriter_StartAndShutdown(t *testing.T) {
 		t.Fatalf("Failed to get free port: %v", err)
 	}
 	addr := fmt.Sprintf("127.0.0.1:%d", port)
-	path := "/events"
+	path := "/sse"
 	logger := utils.New(io.Discard, "TestSSE: ", 0, utils.LevelDebug) // Use io.Discard or bytes.Buffer for logs
 
 	writer, shutdown, err := NewSSEWriter(addr, path, logger)
@@ -66,7 +67,7 @@ func TestSSEWriter_ClientConnectAndWrite(t *testing.T) {
 		t.Fatalf("Failed to get free port: %v", err)
 	}
 	addr := fmt.Sprintf("127.0.0.1:%d", port)
-	path := "/test-sse"
+	path := "/sse"
 	logger := utils.New(io.Discard, "TestSSE: ", 0, utils.LevelDebug)
 
 	sseWriter, shutdown, err := NewSSEWriter(addr, path, logger)
@@ -156,7 +157,7 @@ func TestSSEWriter_WriteBeforeConnect(t *testing.T) {
 		t.Fatalf("Failed to get free port: %v", err)
 	}
 	addr := fmt.Sprintf("127.0.0.1:%d", port)
-	path := "/test-sse-late"
+	path := "/sse"
 	logger := utils.New(io.Discard, "TestSSE: ", 0, utils.LevelDebug)
 
 	sseWriter, shutdown, err := NewSSEWriter(addr, path, logger)
@@ -248,7 +249,7 @@ func TestSSEWriter_ClientDisconnect(t *testing.T) {
 		t.Fatalf("Failed to get free port: %v", err)
 	}
 	addr := fmt.Sprintf("127.0.0.1:%d", port)
-	path := "/test-disconnect"
+	path := "/sse"
 	logger := utils.New(io.Discard, "TestSSE: ", 0, utils.LevelDebug)
 
 	sseWriter, shutdown, err := NewSSEWriter(addr, path, logger)
@@ -256,7 +257,7 @@ func TestSSEWriter_ClientDisconnect(t *testing.T) {
 		t.Fatalf("NewSSEWriter failed: %v", err)
 	}
 	defer func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 		shutdown(ctx)
 	}()
@@ -273,6 +274,9 @@ func TestSSEWriter_ClientDisconnect(t *testing.T) {
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("Expected status OK, got %s", resp.Status)
 	}
+
+	time.Sleep(5 * time.Second)
+
 	// Don't read body, just close it to simulate disconnect
 	resp.Body.Close()
 

@@ -140,6 +140,7 @@ func (s *SSEWriter) handleSSEConnection(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Keep the connection open until the client disconnects
+	time.Sleep(30 * time.Second)
 	ctx := r.Context()
 	<-ctx.Done()
 
@@ -176,7 +177,7 @@ func (s *SSEWriter) Write(p []byte) (n int, err error) {
 		case connInfo, ok := <-s.connChan:
 			if !ok {
 				s.logger.Printf(utils.LevelWarning, "Write failed: connChan closed during wait") // Use LevelWarning
-				return 0, io.ErrClosedPipe // Or a more specific error
+				return 0, io.ErrClosedPipe                                                       // Or a more specific error
 			}
 			s.logger.Printf(utils.LevelDebug, "Received connection from connChan.")
 			s.mu.Lock() // Re-lock before modifying shared state
