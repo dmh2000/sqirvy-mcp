@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"mcp/pkg/utils"
-	"net"
 	"net/http"
 	"sync"
 	"time"
+
+	utils "sqirvy-mcp/pkg/utils"
 )
 
 // SSEWriter handles sending Server-Sent Events to a connected client.
@@ -45,7 +45,7 @@ func NewSSEWriter(addr string, path string, logger *utils.Logger) (*SSEWriter, f
 	}
 
 	sseWriter := &SSEWriter{
-		logger:           logger,
+		logger: logger,
 		connChan: make(chan struct { // Buffered channel to avoid blocking handler if Write isn't called yet
 			writer  http.ResponseWriter
 			flusher http.Flusher
