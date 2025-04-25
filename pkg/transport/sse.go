@@ -48,22 +48,20 @@ func (sr *SSEReader) Read(p []byte) (int, error) {
 		return n, nil
 	}
 
-	// Wait for data from the channel
-	select {
-	case data, ok := <-sr.dataChan:
-		if !ok {
-			return 0, io.EOF
-		}
-		
-		// If the provided buffer is too small, store the remainder
-		if len(data) > len(p) {
-			n := copy(p, data)
-			sr.buffer = data[n:]
-			return n, nil
-		}
-		
-		return copy(p, data), nil
+	// Wait for data from the channel - simple receive operation
+	data, ok := <-sr.dataChan
+	if !ok {
+		return 0, io.EOF
 	}
+	
+	// If the provided buffer is too small, store the remainder
+	if len(data) > len(p) {
+		n := copy(p, data)
+		sr.buffer = data[n:]
+		return n, nil
+	}
+	
+	return copy(p, data), nil
 }
 
 // Global map to track server instances by port
