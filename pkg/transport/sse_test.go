@@ -512,7 +512,6 @@ func TestSSE_ServerRouting(t *testing.T) {
 // waitTimeout waits for the waitgroup for the specified duration.
 // Returns true if waiting timed out.
 func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
-	c := make(chan struct{})
 	done := make(chan struct{}) // Separate channel to signal completion
 
 	go func() {
