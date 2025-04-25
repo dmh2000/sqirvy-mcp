@@ -1,9 +1,7 @@
 package transport
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"net"
 	"net/http"
 	"strings"
@@ -41,7 +39,7 @@ func waitForServerReady(t *testing.T, port int, timeout time.Duration) bool {
 func TestNewSSEServer(t *testing.T) {
 	port := findAvailablePort(t)
 	path := "/events"
-	
+
 	// Create a new SSE server
 	reader, stopFunc, err := NewSSEServer(port, path)
 	if err != nil {
@@ -52,20 +50,20 @@ func TestNewSSEServer(t *testing.T) {
 			t.Logf("Error stopping server: %v", err)
 		}
 	}()
-	
+
 	// Wait for the server to start
 	if !waitForServerReady(t, port, 2*time.Second) {
 		t.Fatalf("Server did not start within timeout period")
 	}
-	
+
 	// Verify the reader is not nil
 	if reader == nil {
 		t.Fatal("Reader should not be nil")
 	}
-	
+
 	// Test that the server responds to requests
 	client := &http.Client{Timeout: 1 * time.Second}
-	
+
 	// Test with correct Accept header
 	req, _ := http.NewRequest("GET", fmt.Sprintf("http://127.0.0.1:%d%s", port, path), nil)
 	req.Header.Set("Accept", "text/event-stream")
@@ -74,15 +72,15 @@ func TestNewSSEServer(t *testing.T) {
 		t.Fatalf("Failed to connect to SSE server: %v", err)
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status 200, got %d", resp.StatusCode)
 	}
-	
+
 	if resp.Header.Get("Content-Type") != "text/event-stream" {
 		t.Errorf("Expected Content-Type text/event-stream, got %s", resp.Header.Get("Content-Type"))
 	}
-	
+
 	// Test with incorrect Accept header
 	req, _ = http.NewRequest("GET", fmt.Sprintf("http://127.0.0.1:%d%s", port, path), nil)
 	req.Header.Set("Accept", "application/json")
@@ -91,18 +89,18 @@ func TestNewSSEServer(t *testing.T) {
 		t.Fatalf("Failed to connect to SSE server: %v", err)
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != http.StatusNotAcceptable {
 		t.Errorf("Expected status 406, got %d", resp.StatusCode)
 	}
-	
+
 	// Test with incorrect method
 	resp, err = client.Post(fmt.Sprintf("http://127.0.0.1:%d%s", port, path), "text/plain", strings.NewReader("test"))
 	if err != nil {
 		t.Fatalf("Failed to connect to SSE server: %v", err)
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != http.StatusMethodNotAllowed {
 		t.Errorf("Expected status 405, got %d", resp.StatusCode)
 	}
@@ -112,26 +110,26 @@ func TestNewSSEServer(t *testing.T) {
 func TestSSEServerStop(t *testing.T) {
 	port := findAvailablePort(t)
 	path := "/events"
-	
+
 	// Create a new SSE server
 	_, stopFunc, err := NewSSEServer(port, path)
 	if err != nil {
 		t.Fatalf("Failed to create SSE server: %v", err)
 	}
-	
+
 	// Wait for the server to start
 	if !waitForServerReady(t, port, 2*time.Second) {
 		t.Fatalf("Server did not start within timeout period")
 	}
-	
+
 	// Stop the server
 	if err := stopFunc(); err != nil {
 		t.Fatalf("Failed to stop server: %v", err)
 	}
-	
+
 	// Allow time for the server to stop
 	time.Sleep(100 * time.Millisecond)
-	
+
 	// Verify the server is no longer accepting connections
 	client := &http.Client{Timeout: 500 * time.Millisecond}
 	req, _ := http.NewRequest("GET", fmt.Sprintf("http://127.0.0.1:%d%s", port, path), nil)
@@ -146,22 +144,22 @@ func TestSSEServerStop(t *testing.T) {
 func TestSSEServerMultipleClients(t *testing.T) {
 	port := findAvailablePort(t)
 	path := "/events"
-	
+
 	// Create a new SSE server
 	_, stopFunc, err := NewSSEServer(port, path)
 	if err != nil {
 		t.Fatalf("Failed to create SSE server: %v", err)
 	}
 	defer stopFunc()
-	
+
 	// Wait for the server to start
 	if !waitForServerReady(t, port, 2*time.Second) {
 		t.Fatalf("Server did not start within timeout period")
 	}
-	
+
 	// Connect multiple clients
 	client := &http.Client{Timeout: 1 * time.Second}
-	
+
 	// Connect first client
 	req1, _ := http.NewRequest("GET", fmt.Sprintf("http://127.0.0.1:%d%s", port, path), nil)
 	req1.Header.Set("Accept", "text/event-stream")
@@ -170,11 +168,11 @@ func TestSSEServerMultipleClients(t *testing.T) {
 		t.Fatalf("Failed to connect first client: %v", err)
 	}
 	defer resp1.Body.Close()
-	
+
 	if resp1.StatusCode != http.StatusOK {
 		t.Errorf("First client: Expected status 200, got %d", resp1.StatusCode)
 	}
-	
+
 	// Connect second client
 	req2, _ := http.NewRequest("GET", fmt.Sprintf("http://127.0.0.1:%d%s", port, path), nil)
 	req2.Header.Set("Accept", "text/event-stream")
@@ -183,7 +181,7 @@ func TestSSEServerMultipleClients(t *testing.T) {
 		t.Fatalf("Failed to connect second client: %v", err)
 	}
 	defer resp2.Body.Close()
-	
+
 	if resp2.StatusCode != http.StatusOK {
 		t.Errorf("Second client: Expected status 200, got %d", resp2.StatusCode)
 	}

@@ -140,11 +140,13 @@ func (t *TransportImpl) SendMessage(payload []byte) error {
 	return rerr
 }
 
+// NewStdioReader returns an io.Reader that reads from os.Stdin
 func NewStdioReader() io.Reader {
 	reader := os.Stdin
 	return reader
 }
 
+// NewStdioWriter returns an io.Writer that writes to os.Stdout
 func NewStdioWriter() io.Writer {
 	writer := os.Stdout
 	return writer

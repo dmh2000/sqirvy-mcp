@@ -12,8 +12,8 @@ import (
 const (
 	// Default connection details - change these as needed
 	targetIP   = "127.0.0.1"
-	targetPort = 8080 // Example port, replace with the actual client port
-	targetPath = "/mcp" // Example path, replace with the actual client SSE path
+	targetPort = 3001   // Example port, replace with the actual client port
+	targetPath = "/sse" // Example path, replace with the actual client SSE path
 )
 
 func main() {
