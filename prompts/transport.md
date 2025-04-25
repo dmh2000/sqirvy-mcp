@@ -15,6 +15,5 @@ in file pkg/transport/transport.go, create:
 13. if the reader is closed, return an error, indicating the reader is closed
 14. if the reader is not closed, continue reading
 
-@/pkg/transport    in directory pkg/transport, create a new file 'sse.go' that has a function 'NewSSE' that takes an IP address and a port, and initializes a Server Side Event stream, and returns a reader and write connected to that stream
 
-in directory pkg/transport, in  file 'stdio.go' that has a function 'NewStdio' that opens input and output from stdin and stdout, and returns a reader and writer set up for those input and output streams
+in file pkg/transport/sse.go, create a function, NewSSEReader, this function will initialize the input side of a model context protocol server side event reader. The function will be given an IP address, a port and a path, and it will initialize the SSE protocol by sending the Get request  and return an io.reader connected to the stream and an error.

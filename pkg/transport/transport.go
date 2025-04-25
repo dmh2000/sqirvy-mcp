@@ -6,9 +6,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"strings"
 	"sync"
@@ -142,11 +140,12 @@ func (t *TransportImpl) SendMessage(payload []byte) error {
 	return rerr
 }
 
-// NewStdio creates a new reader and writer connected to standard input and standard output.
-// It returns an io.Reader for reading from stdin and an io.Writer for writing to stdout.
-func NewStdio() (io.Reader, io.Writer) {
+func NewStdioReader() io.Reader {
 	reader := os.Stdin
-	writer := os.Stdout
-	return reader, writer
+	return reader
 }
 
+func NewStdioWriter() io.Writer {
+	writer := os.Stdout
+	return writer
+}
