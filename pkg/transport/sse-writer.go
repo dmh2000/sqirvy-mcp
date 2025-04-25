@@ -11,11 +11,11 @@ import (
 	utils "sqirvy-mcp/pkg/utils"
 )
 
-// SSEWriter handles sending Server-Sent Events to a connected client.
-// It implements the io.Writer interface.
+// SSEWriter handles sending Server-Sent Events to a single connected client.
+// It implements the io.Writer interface and assumes it's the only SSE writer instance.
 type SSEWriter struct {
 	logger *utils.Logger
-	// Channel to receive the active connection's writer and flusher
+	// Channel to receive the single active connection's writer and flusher
 	connChan chan struct {
 		writer  http.ResponseWriter
 		flusher http.Flusher
@@ -33,14 +33,15 @@ type SSEWriter struct {
 	server *http.Server
 }
 
-// NewSSEWriter creates and starts an HTTP server listening for SSE connections
+// NewSSEWriter creates and starts an HTTP server listening for a single SSE connection
 // on the specified address and path. It returns an SSEWriter instance
-// which acts as an io.Writer to send messages to the *first* connected client.
+// which acts as an io.Writer to send messages to the connected client.
+// Assumes this is the only SSE writer needed by the server.
 // The server runs in a background goroutine. Call the returned shutdown function
 // to gracefully stop the server.
 func NewSSEWriter(addr string, path string, logger *utils.Logger) (*SSEWriter, func(context.Context) error, error) {
 	if logger == nil {
-		// Create a default logger if none provided
+		// Create a default logger if none provided, though providing one is recommended
 		logger = utils.New(io.Discard, "SSEWriter: ", 0, utils.LevelInfo)
 	}
 
@@ -125,9 +126,12 @@ func (s *SSEWriter) handleSSEConnection(w http.ResponseWriter, r *http.Request) 
 	}{w, flusher}:
 		s.logger.Printf(utils.LevelDebug, "Sent writer/flusher to connChan for %s", r.RemoteAddr)
 	default:
-		s.logger.Printf(utils.LevelWarning, "connChan is full or closed. Ignoring new connection from %s", r.RemoteAddr) // Use LevelWarning
-		// Optionally close the connection immediately or send an error
-		http.Error(w, "Server busy, try again later", http.StatusServiceUnavailable)
+		// This case should ideally not happen if only one client connects.
+		// If it does, it might indicate a previous client didn't disconnect cleanly
+		// or multiple clients are trying to connect simultaneously.
+		s.logger.Printf(utils.LevelWarning, "connChan is full or closed. Unexpected new connection from %s ignored.", r.RemoteAddr)
+		// We don't send an error back, just ignore the connection attempt,
+		// as the writer is already handling (or waiting for) the intended client.
 		return
 	}
 
@@ -152,19 +156,21 @@ func (s *SSEWriter) handleSSEConnection(w http.ResponseWriter, r *http.Request) 
 		s.writer = nil
 		s.flusher = nil
 		s.logger.Printf(utils.LevelDebug, "Cleared active writer/flusher for disconnected client %s", r.RemoteAddr)
-		// Reset connected channel for potential new connections?
-		// For now, this writer supports only the *first* connection lifecycle.
-		// To support reconnects, we'd need to reopen s.connected here.
+		// Note: This SSEWriter instance handles only one connection lifecycle.
+		// If the client disconnects and reconnects, a new SSEWriter instance
+		// would typically be needed, or this one would need more complex logic
+		// to reset its state (e.g., reopen `connected` and clear `connChan`).
+		// The current design assumes a single, persistent connection for the writer's lifetime.
 	}
 	s.mu.Unlock()
 }
 
-// Write sends data formatted as an SSE 'data' event to the connected client.
-// It blocks until the first client connects.
-// It is safe for concurrent use.
+// Write sends data formatted as an SSE 'data' event to the single connected client.
+// It blocks until the client connects if called beforehand.
+// It is safe for concurrent use (relative to the handler goroutine).
 func (s *SSEWriter) Write(p []byte) (n int, err error) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
+	// Defer unlock until the end of the function
 
 	// Check if we have an active connection, wait if not
 	if s.writer == nil || s.flusher == nil {
@@ -183,25 +189,33 @@ func (s *SSEWriter) Write(p []byte) (n int, err error) {
 			s.writer = connInfo.writer
 			s.flusher = connInfo.flusher
 		case <-time.After(30 * time.Second): // Add a timeout for waiting?
-			s.logger.Printf(utils.LevelError, "Write timed out waiting for connection")
+			s.logger.Printf(utils.LevelError, "Write timed out waiting for SSE client connection")
+			// Re-acquire lock before returning
+			s.mu.Lock()
 			return 0, fmt.Errorf("timeout waiting for SSE client connection")
 		}
-		// Lock was re-acquired within the select block if connection received
+		// Lock was re-acquired within the select case if connection received.
+		// If we timed out, the lock was re-acquired just above.
 	}
 
-	// Check again after potentially waiting
+	// Check again: Did we successfully get a connection?
 	if s.writer == nil || s.flusher == nil {
-		// This might happen if shutdown occurred while waiting
+		// This could happen if shutdown occurred while waiting, closing connChan.
 		s.logger.Printf(utils.LevelWarning, "Write failed: No active connection after wait") // Use LevelWarning
+		// Ensure unlock happens before returning
+		defer s.mu.Unlock()
 		return 0, io.ErrClosedPipe
 	}
 
+	// Unlock is deferred, so we proceed under lock protection
+	defer s.mu.Unlock()
+
 	// Format the message according to SSE spec (data: <payload>\n\n)
-	// We assume p is a single complete message payload (e.g., a JSON object)
+	// Assume p is a single complete message payload (e.g., a JSON object)
 	sseMsg := fmt.Sprintf("data: %s\n\n", string(p))
 	s.logger.Printf(utils.LevelDebug, "Writing SSE message: %s", sseMsg)
 
-	_, err = fmt.Fprint(s.writer, sseMsg)
+	_, err = fmt.Fprint(s.writer, sseMsg) // Write under lock
 	if err != nil {
 		s.logger.Printf(utils.LevelError, "Error writing to SSE stream: %v", err)
 		// Consider clearing the writer/flusher here if the write fails
@@ -210,19 +224,20 @@ func (s *SSEWriter) Write(p []byte) (n int, err error) {
 		return 0, err
 	}
 
-	// Flush the data to the client
+	// Flush the data to the client (under lock)
 	s.flusher.Flush()
 
 	// Return the length of the original payload, not the formatted SSE message
 	return len(p), nil
+	// mu.Unlock() is called here via defer
 }
 
-// WaitForConnection blocks until the first client connects or the context is cancelled.
+// WaitForConnection blocks until the single client connects or the context is cancelled.
 // Returns an error if the context is cancelled before a connection is established.
 func (s *SSEWriter) WaitForConnection(ctx context.Context) error {
-	s.logger.Printf(utils.LevelDebug, "Waiting for first SSE client connection...")
+	s.logger.Printf(utils.LevelDebug, "Waiting for SSE client connection...")
 	select {
-	case <-s.connected:
+	case <-s.connected: // Wait for the connected channel to be closed by the handler
 		s.logger.Printf(utils.LevelInfo, "First SSE client connection established.")
 		return nil
 	case <-ctx.Done():
