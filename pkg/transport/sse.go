@@ -1,6 +1,6 @@
 package transport
 
-func SseSender(get_addr string,port int, post_addr string,port ) (get <-chan []byte, post chan<-[]byte) {
+func SSE(get_addr string,port int, post_addr string,port ) (get <-chan []byte, post chan<-[]byte) {
 
 	get = make(<-chan []byte, 1)
 	post = make(chan<- []byte, 1)
