@@ -5,14 +5,43 @@ import (
 	"io"
 	"log"
 	"net/http"
+	utils "sqirvy-mcp/pkg/utils"
 )
+
+type SSEparams struct {
+	get_addr      string
+	get_port      int
+	get_endpoint  string
+	post_addr     string
+	post_port     int
+	post_endpoint string
+	logger        *utils.Logger
+}
+
+func SseMakeParams(get_addr string,
+	get_port int,
+	get_endpoint string,
+	post_addr string, post_port int,
+	post_endpoint string,
+	logger *utils.Logger,
+) SSEparams {
+	return SSEparams{
+		get_addr:      get_addr,
+		get_port:      get_port,
+		get_endpoint:  get_endpoint,
+		post_addr:     post_addr,
+		post_port:     post_port,
+		post_endpoint: post_endpoint,
+		logger:        logger,
+	}
+}
 
 // SSE sets up two HTTP servers for Server-Sent Events (SSE) communication.
 // One server listens for GET requests (get_addr:get_port) to stream data *out* via SSE.
 // The other server listens for POST requests (post_addr:post_port) to receive data *in*.
 // It returns a receive-only channel (`get`) for incoming data (from POST requests)
 // and a send-only channel (`post`) for outgoing data (to SSE clients).
-func SSE(get_addr string, get_port int, post_addr string, post_port int) (get <-chan []byte, post chan<- []byte) {
+func StartSSE(params SSEparams) (get chan []byte, post chan []byte) {
 
 	// Using buffered channels might be preferable depending on the use case
 	// postChan receives data from POST requests. It's assigned to the 'get' return value.
@@ -37,6 +66,11 @@ func SSE(get_addr string, get_port int, post_addr string, post_port int) (get <-
 				return
 			}
 
+			// Send an initial message to the client
+			fmt.Fprintf(w, "event: endpoint\n")
+			fmt.Fprintf(w, "data: /messages?session_id=1234\n\n")
+			flusher.Flush() // Flush the data to the client
+
 			// Listen for messages on the get channel (data to be sent out) and send them to the client
 			for msg := range getChan { // Read from the channel assigned to the 'post' return variable
 				fmt.Fprintf(w, "data: %s\n\n", string(msg)) // SSE format: "data: <message>\n\n"
@@ -48,7 +82,7 @@ func SSE(get_addr string, get_port int, post_addr string, post_port int) (get <-
 		muxGet := http.NewServeMux()
 		muxGet.HandleFunc("/", sseHandler) // Handle requests to the root path
 
-		listenAddrGet := fmt.Sprintf("%s:%d", get_addr, get_port)
+		listenAddrGet := fmt.Sprintf("%s:%d/%s", params.get_addr, params.get_port, params.get_endpoint)
 		log.Printf("Starting SSE GET server on %s\n", listenAddrGet)
 		if err := http.ListenAndServe(listenAddrGet, muxGet); err != nil {
 			log.Fatalf("SSE GET server error: %v\n", err) // Use Fatalf to exit if server fails
@@ -88,7 +122,7 @@ func SSE(get_addr string, get_port int, post_addr string, post_port int) (get <-
 		muxPost := http.NewServeMux()
 		muxPost.HandleFunc("/", postHandler) // Handle requests to the root path
 
-		listenAddrPost := fmt.Sprintf("%s:%d", post_addr, post_port)
+		listenAddrPost := fmt.Sprintf("%s:%d/%s", params.post_addr, params.post_port, params.post_endpoint)
 		log.Printf("Starting SSE POST server on %s\n", listenAddrPost)
 		if err := http.ListenAndServe(listenAddrPost, muxPost); err != nil {
 			log.Fatalf("SSE POST server error: %v\n", err) // Use Fatalf to exit if server fails

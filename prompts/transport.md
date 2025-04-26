@@ -21,11 +21,23 @@ in new file pkg/transport/sse.go, create a function, NewSSEReader, this function
 in file pkg/transport/sse.go, add a function, NewSSEWriter that implements the server to client side of the SSE transport. The function that is given an ip address, a port and a path. This function will create a function closure over the ip address, port and path, and return that function closure. the function closure will return an io.writer function that when called, will send a Post request to the ip, port and path, with the mime type application/json.
 
 
-you are creating the server endpoints that implement an mcp server using the Server Side Events protocol.
-1. create file pkg/transport/sse-writer.go. this is the mcp server endpoint that waits for a GET request from the MCP client to open . create a function that creates a server that listens for the SSE GET request from the client. it should start the server in a go routine, and returns a writer so the mcp server can send json-rpc messages to the mcp client. It should export a function NewSSEWriter that takes an ip address, a port and path and returns a writer and any other parameters it needs. 
-2. create a file pkg/transport/sse_writer_test.go that implements tests for the mcp writer.
+you are creating the server endpoints that implements an mcp server using the Server Side Events protocol.
+add the following to the file pkg/transport/sse.go:
+- The first endpoint is an http server accepting the text/event-stream mime type. 
+  - the server is created with a function NewSseServer that gets an ip address, a port and path as input 
+- The second endpoint is an http server arguments. it returns two buffered channels, named 'output' and 'input'
+  - the NewSseServer does 
+    - create an input only channel 'get' that receives bytes slices
+    - create an output only channel 'post' that sends byte slices 
+    - in a goroutine, start an HTTP server 
+        - this server waits for a connection from the mcp client. 
+        - when the client connects, it sends an HTTP GET request with the content-type text/event-stream
+        - when the server receives the GET request, it responds with an event like this:
+            event: endpoint
+            data: /messages?session_id=(unique session id)
+   - after that initialization, this server starts a loop where it receives json-rpc messages on the 'input' channel. when it receives a message on the 'get' channel, it sends it out the on the HTTP connection. it will continue this loop until the http connection is closed
+   - in a second goroutine, start another HTTP server listening on the /messages endpoint
+   - the server receives http messages with 
 
-1. create afile pkg/transport/sse-reader.go. this is the mcp server endpoint that receives POST requests from the mcp client. create a function that creates a server that listens for the POST requests containing json-rpc messages, from the mcp client and returns an io.reader that forwards the incoming messages to the mcp server handlers. It should export a function NewSSEWriter that receives an ip address, a port and a path and returns an io.writer and any other parameters it needs.
-2. create a file pkg/transport/sse_reader_test.go that implements tests for the mcp reader
 
 
