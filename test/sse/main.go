@@ -2,16 +2,27 @@ package main
 
 import (
 	"fmt"
+	"os"
 	transport "sqirvy-mcp/pkg/transport"
 	utils "sqirvy-mcp/pkg/utils"
+	"time"
 )
 
 func main() {
 
-	var logger utils.Logger
-	sseParams := transport.SseMakeParams("localhost", 3001, "/sse", "localhost", 3002, "/messages", &logger)
+	f, err := os.OpenFile("sse.log", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
+	if err != nil {
+		fmt.Println("Failed to open log file:", err)
+	}
+	logger := utils.New(f, "SSE: ", 0, utils.LevelDebug)
+	logger.Printf(utils.LevelInfo, "sqirvy-mcp started")
 
-	getChan, postChan := transport.StartSSE(sseParams)
+	sseParams := transport.SseMakeParams("localhost",
+		9000,
+		"/sse",
+		logger)
+
+	_, postChan := transport.StartSSE(sseParams)
 
 	go func() {
 		for msg := range postChan {
@@ -19,27 +30,29 @@ func main() {
 		}
 	}()
 
-	// initialized message
-	msg := `
-	{
-		"jsonrpc": "2.0",
-		"method": "notifications/initialized",
-	}
-	`
-	getChan <- []byte(msg)
-	fmt.Printf("Sent message: %s\n", msg)
+	// // initialized message
+	// msg := `
+	// {
+	// 	"jsonrpc": "2.0",
+	// 	"method": "notifications/initialized",
+	// }
+	// `
+	// getChan <- []byte(msg)
+	// fmt.Printf("Queued message: %s\n", msg)
+	// time.Sleep(5 * time.Second)
 
 	for {
-		msg := `
-		{
-			"jsonrpc": "2.0",
-			"method": "notifications/alert",
-			"params": {
-				"alert": "test"
-			}
-		}
-		`
-		getChan <- []byte(msg)
-		fmt.Printf("Sent message: %s\n", msg)
+		// msg := `
+		// {
+		// 	"jsonrpc": "2.0",
+		// 	"method": "notifications/alert",
+		// 	"params": {
+		// 		"alert": "test"
+		// 	}
+		// }
+		// `
+		// getChan <- []byte(msg)
+		// fmt.Printf("Sent message: %s\n", msg)
+		time.Sleep(60 * time.Second)
 	}
 }

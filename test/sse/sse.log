@@ -1,0 +1,23 @@
+SSE: sqirvy-mcp started
+SSE: SSE transport started successfully
+SSE: Starting SSE GET server on localhost:9000
+SSE: SSE handler: Received request: GET /sse
+SSE: SSE handler: New client connected
+SSE: sqirvy-mcp started
+SSE: SSE transport started successfully
+SSE: Starting SSE GET server on localhost:9000
+SSE: SSE handler: Received request: GET /sse
+SSE: SSE handler: New client connected
+SSE: SSE handler: Sending message: {"jsonrpc": "2.0", "method": "notifications/initialized"}
+SSE: sqirvy-mcp started
+SSE: SSE transport started successfully
+SSE: Starting SSE GET server on localhost:9000
+SSE: SSE handler: Received request: GET /sse
+SSE: SSE handler: New client connected
+SSE: SSE handler: Sending message: {"jsonrpc": "2.0", "method": "notifications/initialized"}
+SSE: sqirvy-mcp started
+SSE: SSE transport started successfully
+SSE: Starting SSE GET server on localhost:9000
+SSE: SSE handler: Received request: GET /sse
+SSE: SSE handler: New client connected
+SSE: SSE handler: Sending message: {"jsonrpc": "2.0", "method": "notifications/initialized"}
