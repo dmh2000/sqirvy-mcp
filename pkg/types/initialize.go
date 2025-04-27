@@ -3,6 +3,7 @@ package mcp
 import (
 	"encoding/json"
 	"fmt"
+	utils "sqirvy-mcp/pkg/utils"
 )
 
 // MethodInitialize is the method name for the initialize request.
@@ -116,4 +117,30 @@ func UnmarshalInitializeResponse(data []byte) (*InitializeResult, RequestID, *RP
 	}
 
 	return &result, resp.ID, nil, nil
+}
+
+// MarshalInitializeResult marshals a successful InitializeResult into a full RPCResponse and sends it.
+// Returns the marshalled bytes and any error during marshalling.
+// It does *not* send the bytes itself.
+func MarshalInitializeResult(result InitializeResult, logger *utils.Logger) ([]byte, error) {
+	return MarshalResponse(1, result, logger)
+}
+
+func NewInitializeResult(
+	prompts *ServerCapabilitiesPrompts,
+	resources *ServerCapabilitiesResources,
+	tools *ServerCapabilitiesTools,
+) InitializeResult {
+	return InitializeResult{
+		ProtocolVersion: protocolVersion,
+		Capabilities: ServerCapabilities{
+			Prompts:   prompts,
+			Resources: resources,
+			Tools:     tools,
+		},
+		ServerInfo: Implementation{
+			Name:    serverName,
+			Version: serverVersion,
+		},
+	}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	transport "sqirvy-mcp/pkg/transport"
 	utils "sqirvy-mcp/pkg/utils"
@@ -14,7 +15,8 @@ func main() {
 	if err != nil {
 		fmt.Println("Failed to open log file:", err)
 	}
-	logger := utils.New(f, "SSE: ", 0, utils.LevelDebug)
+	logger := utils.New(f, "", log.LstdFlags|log.Lshortfile, utils.LevelDebug)
+
 	logger.Printf(utils.LevelInfo, "sqirvy-mcp started")
 
 	sseParams := transport.SseMakeParams("localhost",
@@ -29,17 +31,6 @@ func main() {
 			fmt.Printf("Received message: %s\n", msg)
 		}
 	}()
-
-	// // initialized message
-	// msg := `
-	// {
-	// 	"jsonrpc": "2.0",
-	// 	"method": "notifications/initialized",
-	// }
-	// `
-	// getChan <- []byte(msg)
-	// fmt.Printf("Queued message: %s\n", msg)
-	// time.Sleep(5 * time.Second)
 
 	for {
 		// msg := `

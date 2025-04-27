@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	types "sqirvy-mcp/pkg/types"
 	utils "sqirvy-mcp/pkg/utils"
 	"sync"
 )
@@ -94,10 +95,16 @@ func StartSSE(p SSEparams) (chan []byte, chan []byte) {
 			p.logger.Println(utils.LevelDebug, "SSE handler: New client connected")
 
 			// send initialization response even if no POST received
+			result := types.NewInitializeResult(nil, nil, nil)
+			msg, err := types.MarshalInitializeResult(result, p.logger)
+			if err != nil {
+				p.logger.Printf(utils.LevelError, "SSE handler: Error marshalling InitializeResult: %v", err)
+				http.Error(w, "Error marshalling InitializeResult", http.StatusInternalServerError)
+				return
+			}
 
-			msg := []byte(`{"jsonrpc": "2.0", "method": "notifications/initialized"}`)
 			p.logger.Printf(utils.LevelDebug, "SSE handler: Sending message: %s", string(msg))
-			w.Write(msg)
+			w.Write([]byte(msg))
 			flusher.Flush()
 
 			// Listen for messages on the get channel (data to be sent to the client

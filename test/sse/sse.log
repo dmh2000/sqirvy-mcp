@@ -21,3 +21,105 @@ SSE: Starting SSE GET server on localhost:9000
 SSE: SSE handler: Received request: GET /sse
 SSE: SSE handler: New client connected
 SSE: SSE handler: Sending message: {"jsonrpc": "2.0", "method": "notifications/initialized"}
+SSE: sqirvy-mcp started
+SSE: SSE transport started successfully
+SSE: Starting SSE GET server on localhost:9000
+SSE: SSE handler: Received request: GET /sse
+SSE: SSE handler: New client connected
+SSE: SSE handler: Sending message: 
+			{
+				"jsonrpc": "2.0",
+				"id": 1,
+				"result": {
+					"protocolVersion": "2024-11-05",
+					"serverInfo": {
+					"name": "sqirvy-mcp",
+					"version": "1.0.0"
+					},
+					"capabilities": {
+					"tools": {},
+					"resources": {},
+					"prompts": {}
+					}
+				}
+			}
+			
+SSE: sqirvy-mcp started
+SSE: SSE transport started successfully
+SSE: Starting SSE GET server on localhost:9000
+SSE: SSE handler: Received request: GET /sse
+SSE: SSE handler: New client connected
+SSE: SSE handler: Sending message: 
+			{
+				"jsonrpc": "2.0",
+				"id": 1,
+				"result": {
+					"protocolVersion": "2024-11-05",
+					"serverInfo": {
+					"name": "sqirvy-mcp",
+					"version": "1.0.0"
+					},
+					"capabilities": {
+					"tools": {},
+					"resources": {},
+					"prompts": {}
+					}
+				}
+			}
+			
+SSE: sqirvy-mcp started
+SSE: SSE transport started successfully
+SSE: Starting SSE GET server on localhost:9000
+SSE: SSE handler: Received request: GET /sse
+SSE: SSE handler: New client connected
+SSE: S:{"jsonrpc":"2.0","result":{"_meta":{"id":1,"jsonrpc":"2.0"},"capabilities":{"prompts":{},"resources":{},"tools":{}},"protocolVersion":"2024-11-05","serverInfo":{"name":"sqirvy-mcp","version":"0.1.0"}},"id":null}
+SSE: SSE handler: Sending message: {"jsonrpc":"2.0","result":{"_meta":{"id":1,"jsonrpc":"2.0"},"capabilities":{"prompts":{},"resources":{},"tools":{}},"protocolVersion":"2024-11-05","serverInfo":{"name":"sqirvy-mcp","version":"0.1.0"}},"id":null}
+2025/04/26 19:55:43 main.go:20: sqirvy-mcp started
+2025/04/26 19:55:43 sse.go:153: SSE transport started successfully
+2025/04/26 19:55:43 sse.go:145: Starting SSE GET server on localhost:9000
+2025/04/26 19:55:45 sse.go:78: SSE handler: Received request: GET /sse
+2025/04/26 19:55:45 sse.go:95: SSE handler: New client connected
+2025/04/26 19:55:45 result.go:48: S:{"jsonrpc":"2.0","result":{"_meta":{"id":1,"jsonrpc":"2.0"},"capabilities":{"prompts":{},"resources":{},"tools":{}},"protocolVersion":"2024-11-05","serverInfo":{"name":"sqirvy-mcp","version":"0.1.0"}},"id":null}
+2025/04/26 19:55:45 sse.go:106: SSE handler: Sending message: {"jsonrpc":"2.0","result":{"_meta":{"id":1,"jsonrpc":"2.0"},"capabilities":{"prompts":{},"resources":{},"tools":{}},"protocolVersion":"2024-11-05","serverInfo":{"name":"sqirvy-mcp","version":"0.1.0"}},"id":null}
+2025/04/26 19:57:18 main.go:20: sqirvy-mcp started
+2025/04/26 19:57:18 sse.go:153: SSE transport started successfully
+2025/04/26 19:57:18 sse.go:145: Starting SSE GET server on localhost:9000
+2025/04/26 19:57:19 sse.go:78: SSE handler: Received request: GET /sse
+2025/04/26 19:57:19 sse.go:95: SSE handler: New client connected
+2025/04/26 19:57:19 sse.go:106: SSE handler: Sending message: {"jsonrpc":"2.0","result":{"_meta":{"id":1,"jsonrpc":"2.0"},"capabilities":{"prompts":{},"resources":{},"tools":{}},"protocolVersion":"2024-11-05","serverInfo":{"name":"sqirvy-mcp","version":"0.1.0"}},"id":null}
+2025/04/26 19:57:57 main.go:20: sqirvy-mcp started
+2025/04/26 19:57:57 sse.go:153: SSE transport started successfully
+2025/04/26 19:57:57 sse.go:145: Starting SSE GET server on localhost:9000
+2025/04/26 19:57:57 sse.go:78: SSE handler: Received request: GET /sse
+2025/04/26 19:57:57 sse.go:95: SSE handler: New client connected
+2025/04/26 19:57:57 sse.go:106: SSE handler: Sending message: {"jsonrpc":"2.0","result":{"capabilities":{"prompts":{},"resources":{},"tools":{}},"protocolVersion":"2024-11-05","serverInfo":{"name":"sqirvy-mcp","version":"0.1.0"}},"id":null}
+2025/04/26 19:58:26 main.go:20: sqirvy-mcp started
+2025/04/26 19:58:26 sse.go:153: SSE transport started successfully
+2025/04/26 19:58:26 sse.go:145: Starting SSE GET server on localhost:9000
+2025/04/26 19:58:27 sse.go:78: SSE handler: Received request: GET /sse
+2025/04/26 19:58:27 sse.go:95: SSE handler: New client connected
+2025/04/26 19:58:27 sse.go:106: SSE handler: Sending message: {"jsonrpc":"2.0","result":{"_meta":{"id":1},"capabilities":{"prompts":{},"resources":{},"tools":{}},"protocolVersion":"2024-11-05","serverInfo":{"name":"sqirvy-mcp","version":"0.1.0"}},"id":null}
+2025/04/26 19:59:44 main.go:20: sqirvy-mcp started
+2025/04/26 19:59:44 sse.go:153: SSE transport started successfully
+2025/04/26 19:59:44 sse.go:145: Starting SSE GET server on localhost:9000
+2025/04/26 19:59:45 sse.go:78: SSE handler: Received request: GET /sse
+2025/04/26 19:59:45 sse.go:95: SSE handler: New client connected
+2025/04/26 19:59:45 sse.go:106: SSE handler: Sending message: {"jsonrpc":"2.0","result":{"capabilities":{"prompts":{},"resources":{},"tools":{}},"protocolVersion":"2024-11-05","serverInfo":{"name":"sqirvy-mcp","version":"0.1.0"}},"id":1}
+2025/04/26 20:00:36 main.go:20: sqirvy-mcp started
+2025/04/26 20:00:36 sse.go:153: SSE transport started successfully
+2025/04/26 20:00:36 sse.go:145: Starting SSE GET server on localhost:9000
+2025/04/26 20:00:37 sse.go:78: SSE handler: Received request: GET /sse
+2025/04/26 20:00:37 sse.go:95: SSE handler: New client connected
+2025/04/26 20:00:37 sse.go:106: SSE handler: Sending message: {"jsonrpc":"2.0","id":1,"result":{"capabilities":{"prompts":{},"resources":{},"tools":{}},"protocolVersion":"2024-11-05","serverInfo":{"name":"sqirvy-mcp","version":"0.1.0"}}}
+2025/04/26 20:00:57 main.go:20: sqirvy-mcp started
+2025/04/26 20:00:57 sse.go:153: SSE transport started successfully
+2025/04/26 20:00:57 sse.go:145: Starting SSE GET server on localhost:9000
+2025/04/26 20:00:58 sse.go:78: SSE handler: Received request: GET /sse
+2025/04/26 20:00:58 sse.go:95: SSE handler: New client connected
+2025/04/26 20:00:58 sse.go:106: SSE handler: Sending message: {"jsonrpc":"2.0","id":1,"result":{"capabilities":{"prompts":{},"resources":{},"tools":{}},"protocolVersion":"2024-11-05","serverInfo":{"name":"sqirvy-mcp","version":"0.1.0"}}}
+2025/04/26 20:04:44 main.go:20: sqirvy-mcp started
+2025/04/26 20:04:44 sse.go:153: SSE transport started successfully
+2025/04/26 20:04:44 sse.go:145: Starting SSE GET server on localhost:9000
+2025/04/26 20:04:46 sse.go:78: SSE handler: Received request: GET /sse
+2025/04/26 20:04:46 sse.go:95: SSE handler: New client connected
+2025/04/26 20:04:46 sse.go:106: SSE handler: Sending message: {"jsonrpc":"2.0","id":1,"result":{"capabilities":{},"protocolVersion":"2024-11-05","serverInfo":{"name":"sqirvy-mcp","version":"0.1.0"}}}

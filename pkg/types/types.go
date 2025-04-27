@@ -24,9 +24,9 @@ type RPCRequest struct {
 // RPCResponse defines the structure for a JSON-RPC response.
 type RPCResponse struct {
 	JSONRPC string          `json:"jsonrpc"`
+	ID      RequestID       `json:"id"`
 	Result  json.RawMessage `json:"result,omitempty"`
 	Error   *RPCError       `json:"error,omitempty"`
-	ID      RequestID       `json:"id"`
 }
 
 // Role defines the sender or recipient of messages and data.

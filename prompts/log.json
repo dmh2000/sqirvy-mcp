@@ -1,0 +1,16 @@
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+        "capabilities": {
+            "prompts": {},
+            "resources": {},
+            "tools": {}
+        },
+        "protocolVersion": "2024-11-05",
+        "serverInfo": {
+            "name": "sqirvy-mcp",
+            "version": "0.1.0"
+        }
+    }
+}
