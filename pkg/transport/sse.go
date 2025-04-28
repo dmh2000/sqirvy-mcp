@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	types "sqirvy-mcp/pkg/types"
+	types "sqirvy-mcp/pkg/mcp"
 	utils "sqirvy-mcp/pkg/utils"
 	"sync"
 )
