@@ -119,6 +119,10 @@ func UnmarshalInitializeResult(data []byte) (*InitializeResult, RequestID, *RPCE
 	return &result, resp.ID, nil, nil
 }
 
+// ---------------------------------------------------------
+// response marshaling
+// ---------------------------------------------------------
+
 // MarshalInitializeResult marshals a successful InitializeResult into a full RPCResponse and sends it.
 // Returns the marshalled bytes and any error during marshalling.
 // It does *not* send the bytes itself.

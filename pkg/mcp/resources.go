@@ -1,8 +1,11 @@
 package mcp
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt" // Keep fmt for error formatting in functions
+	utils "sqirvy-mcp/pkg/utils"
+	"strings"
 )
 
 // Method names for resource operations.
@@ -242,4 +245,40 @@ func UnmarshalReadResourcesResult(data []byte) (*ReadResourceResult, RequestID, 
 
 	// The caller needs to process result.Contents further
 	return &result, resp.ID, nil, nil
+}
+
+func MarshalReadResourceResult(id RequestID, result ReadResourceResult, logger *utils.Logger) ([]byte, error) {
+	return MarshalResponse(id, result, logger)
+}
+
+func NewReadResourcesResult(uri string, mimetype string, contents []byte) (ReadResourceResult, error) {
+
+	var result ReadResourceResult
+	var content json.RawMessage
+	var err error
+
+	if strings.HasPrefix(mimetype, "text/") || mimetype == "application/json" { // Basic check for text
+		text := TextResourceContents{
+			URI:      uri,
+			MimeType: mimetype,
+			Text:     string(contents),
+		}
+		content, err = json.Marshal(text)
+		if err != nil {
+			return result, err
+		}
+	} else {
+		blob := BlobResourceContents{
+			URI:      uri,
+			MimeType: mimetype,
+			Blob:     base64.StdEncoding.EncodeToString(contents),
+		}
+		content, err = json.Marshal(blob)
+		if err != nil {
+			return result, err
+		}
+	}
+
+	result.Contents = []json.RawMessage{json.RawMessage(content)}
+	return result, nil
 }

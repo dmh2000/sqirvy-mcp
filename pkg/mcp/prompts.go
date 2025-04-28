@@ -187,9 +187,10 @@ func UnmarshalGetPromptResult(data []byte) (*GetPromptResult, RequestID, *RPCErr
 	return &result, resp.ID, nil, nil
 }
 
-// MarshalInitializeResult marshals a successful InitializeResult into a full RPCResponse and sends it.
-// Returns the marshalled bytes and any error during marshalling.
-// It does *not* send the bytes itself.
+// ---------------------------------------------------------
+// response marshaling
+// ---------------------------------------------------------
+
 func MarshalGetPromptResult(id RequestID, result GetPromptResult, logger *utils.Logger) ([]byte, error) {
 	return MarshalResponse(id, result, logger)
 }

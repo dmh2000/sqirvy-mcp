@@ -109,44 +109,46 @@ func (s *Server) handleReadResource(id mcp.RequestID, payload []byte) ([]byte, e
 		return s.marshalErrorResponse(id, rpcErr)
 	}
 
-	// --- Prepare successful response ---
-	// Create the appropriate content structure (Text or Blob)
-	// For now, assume text based on our simple ReadFileResource
-	// TODO: Add logic to create BlobResourceContents if mimeType indicates binary
-	var resourceContents interface{}
-	if strings.HasPrefix(resourceMimeType, "text/") || resourceMimeType == "application/json" { // Basic check for text
-		resourceContents = mcp.TextResourceContents{
-			URI:      params.URI,
-			MimeType: resourceMimeType,
-			Text:     string(resourceContentBytes),
-		}
-	} else {
-		// Treat as blob otherwise (requires base64 encoding)
-		// resourceContents = mcp.BlobResourceContents{
-		// 	URI:      params.URI,
-		// 	MimeType: resourceMimeType,
-		// 	Blob:     base64.StdEncoding.EncodeToString(resourceContentBytes), // Requires "encoding/base64"
-		// }
-		// For now, return error if not text, as blob isn't fully implemented
-		err = fmt.Errorf("non-text MIME type '%s' handling not fully implemented for URI %s", resourceMimeType, params.URI)
-		s.logger.Println("DEBUG", err.Error())
-		rpcErr := mcp.NewRPCError(mcp.ErrorCodeInternalError, err.Error(), nil)
-		return s.marshalErrorResponse(id, rpcErr)
-	}
-
-	// Marshal the specific content structure (TextResourceContents)
-	contentBytes, err := json.Marshal(resourceContents)
+	result, err := mcp.NewReadResourcesResult(params.URI, resourceMimeType, resourceContentBytes)
 	if err != nil {
-		err = fmt.Errorf("failed to marshal resource contents for %s: %w", params.URI, err)
+		err = fmt.Errorf("failed to create read resource result for %s: %w", params.URI, err)
 		s.logger.Println("DEBUG", err.Error())
 		rpcErr := mcp.NewRPCError(mcp.ErrorCodeInternalError, err.Error(), nil)
 		return s.marshalErrorResponse(id, rpcErr)
-	}
-
-	// Create the final result structure containing the marshalled content
-	result := mcp.ReadResourceResult{
-		Contents: []json.RawMessage{json.RawMessage(contentBytes)},
 	}
 
 	return s.marshalResponse(id, result)
 }
+
+// --- Prepare successful response ---
+// Create the appropriate content structure (Text or Blob)
+// For now, assume text based on our simple ReadFileResource
+// TODO: Add logic to create BlobResourceContents if mimeType indicates binary
+// var resourceContents interface{}
+// if strings.HasPrefix(resourceMimeType, "text/") || resourceMimeType == "application/json" { // Basic check for text
+// 	resourceContents = mcp.TextResourceContents{
+// 		URI:      params.URI,
+// 		MimeType: resourceMimeType,
+// 		Text:     string(resourceContentBytes),
+// 	}
+// } else {
+// 	resourceContents = mcp.BlobResourceContents{
+// 		URI:      params.URI,
+// 		MimeType: resourceMimeType,
+// 		Blob:     base64.StdEncoding.EncodeToString(resourceContentBytes),
+// 	}
+// }
+
+// Marshal the specific content structure (TextResourceContents)
+// contentBytes, err := json.Marshal(resourceContents)
+// if err != nil {
+// 	err = fmt.Errorf("failed to marshal resource contents for %s: %w", params.URI, err)
+// 	s.logger.Println("DEBUG", err.Error())
+// 	rpcErr := mcp.NewRPCError(mcp.ErrorCodeInternalError, err.Error(), nil)
+// 	return s.marshalErrorResponse(id, rpcErr)
+// }
+
+// Create the final result structure containing the marshalled content
+// result := mcp.ReadResourceResult{
+// 	Contents: []json.RawMessage{json.RawMessage(content)},
+// }
