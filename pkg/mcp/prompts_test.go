@@ -116,7 +116,7 @@ func TestUnmarshalListPromptsResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResult, gotID, gotErr, parseErr := UnmarshalListPromptsResponse([]byte(tt.data))
+			gotResult, gotID, gotErr, parseErr := UnmarshalListPromptsResult([]byte(tt.data))
 
 			if (parseErr != nil) != tt.parseErr {
 				t.Fatalf("UnmarshalListPromptsResponse() parseErr = %v, want parseErr %v", parseErr, tt.parseErr)
@@ -248,7 +248,7 @@ func TestUnmarshalGetPromptResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResult, gotID, gotErr, parseErr := UnmarshalGetPromptResponse([]byte(tt.data))
+			gotResult, gotID, gotErr, parseErr := UnmarshalGetPromptResult([]byte(tt.data))
 
 			if (parseErr != nil) != tt.parseErr {
 				t.Fatalf("UnmarshalGetPromptResponse() parseErr = %v, want parseErr %v", parseErr, tt.parseErr)

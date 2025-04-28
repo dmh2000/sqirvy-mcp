@@ -91,13 +91,6 @@ func MarshalInitializeRequest(id RequestID, params InitializeParams) ([]byte, er
 	return json.Marshal(req)
 }
 
-// MarshalInitializeResult marshals a successful InitializeResult into a full RPCResponse and sends it.
-// Returns the marshalled bytes and any error during marshalling.
-// It does *not* send the bytes itself.
-func MarshalInitializeResult(result InitializeResult, logger *utils.Logger) ([]byte, error) {
-	return MarshalResponse(1, result, logger)
-}
-
 // UnmarshalInitializeResult parses a JSON-RPC response for an initialize request.
 // It expects the standard JSON-RPC response format with the result nested in the "result" field.
 // It returns the result, the response ID, any RPC error, and a general parsing error.
@@ -124,6 +117,13 @@ func UnmarshalInitializeResult(data []byte) (*InitializeResult, RequestID, *RPCE
 	}
 
 	return &result, resp.ID, nil, nil
+}
+
+// MarshalInitializeResult marshals a successful InitializeResult into a full RPCResponse and sends it.
+// Returns the marshalled bytes and any error during marshalling.
+// It does *not* send the bytes itself.
+func MarshalInitializeResult(id RequestID, result InitializeResult, logger *utils.Logger) ([]byte, error) {
+	return MarshalResponse(id, result, logger)
 }
 
 func NewInitializeResult(

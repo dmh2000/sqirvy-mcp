@@ -128,10 +128,10 @@ func MarshalListResourcesRequest(id RequestID, params *ListResourcesParams) ([]b
 	return json.Marshal(req)
 }
 
-// UnmarshalListResourcesResponse parses a JSON-RPC response for a resources/list request.
+// UnmarshalListResourcesResult parses a JSON-RPC response for a resources/list request.
 // It expects the standard JSON-RPC response format with the result nested in the "result" field.
 // It returns the result, the response ID, any RPC error, and a general parsing error.
-func UnmarshalListResourcesResponse(data []byte) (*ListResourcesResult, RequestID, *RPCError, error) {
+func UnmarshalListResourcesResult(data []byte) (*ListResourcesResult, RequestID, *RPCError, error) {
 	var resp RPCResponse
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to unmarshal RPC response: %w", err)
@@ -159,9 +159,9 @@ func UnmarshalListResourcesResponse(data []byte) (*ListResourcesResult, RequestI
 	return &result, resp.ID, nil, nil
 }
 
-// MarshalListResourceTemplatesRequest creates a JSON-RPC request for the resources/templates/list method.
+// MarshalListResourceTemplatesResult creates a JSON-RPC request for the resources/templates/list method.
 // The id can be a string or an integer. If params is nil, default empty params will be used.
-func MarshalListResourceTemplatesRequest(id RequestID, params *ListResourceTemplatesParams) ([]byte, error) {
+func MarshalListResourceTemplatesResult(id RequestID, params *ListResourceTemplatesParams) ([]byte, error) {
 	var p interface{}
 	if params != nil {
 		p = params
@@ -178,8 +178,8 @@ func MarshalListResourceTemplatesRequest(id RequestID, params *ListResourceTempl
 	return json.Marshal(req)
 }
 
-// UnmarshalListResourceTemplatesResponse parses a JSON-RPC response for a resources/templates/list request.
-func UnmarshalListResourceTemplatesResponse(data []byte) (*ListResourceTemplatesResult, RequestID, *RPCError, error) {
+// UnmarshalListResourceTemplatesResult parses a JSON-RPC response for a resources/templates/list request.
+func UnmarshalListResourceTemplatesResult(data []byte) (*ListResourceTemplatesResult, RequestID, *RPCError, error) {
 	var resp RPCResponse
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to unmarshal RPC response: %w", err)
@@ -213,12 +213,12 @@ func MarshalReadResourcesRequest(id RequestID, params ReadResourceParams) ([]byt
 	return json.Marshal(req)
 }
 
-// UnmarshalReadResourcesResponse parses a JSON-RPC response for a resources/read request.
+// UnmarshalReadResourcesResult parses a JSON-RPC response for a resources/read request.
 // It expects the standard JSON-RPC response format with the result nested in the "result" field.
 // It returns the result, the response ID, any RPC error, and a general parsing error.
 // Note: The Contents field within the result will contain json.RawMessage elements
 // that need further unmarshaling into TextResourceContents or BlobResourceContents by the caller.
-func UnmarshalReadResourcesResponse(data []byte) (*ReadResourceResult, RequestID, *RPCError, error) {
+func UnmarshalReadResourcesResult(data []byte) (*ReadResourceResult, RequestID, *RPCError, error) {
 	var resp RPCResponse
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to unmarshal RPC response: %w", err)
@@ -243,7 +243,3 @@ func UnmarshalReadResourcesResponse(data []byte) (*ReadResourceResult, RequestID
 	// The caller needs to process result.Contents further
 	return &result, resp.ID, nil, nil
 }
-
-// Note: Standard json.Marshal and json.Unmarshal can be used for the other defined types.
-// For ReadResourceResult.Contents, further processing is needed after unmarshaling
-// to determine the concrete type (TextResourceContents or BlobResourceContents) of each element.

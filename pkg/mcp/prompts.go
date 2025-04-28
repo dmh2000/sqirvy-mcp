@@ -3,6 +3,7 @@ package mcp
 import (
 	"encoding/json"
 	"fmt" // Keep fmt for error formatting in functions
+	utils "sqirvy-mcp/pkg/utils"
 )
 
 // Method names for prompt operations.
@@ -114,10 +115,10 @@ func MarshalListPromptsRequest(id RequestID, params *ListPromptsParams) ([]byte,
 	return json.Marshal(req)
 }
 
-// UnmarshalListPromptsResponse parses a JSON-RPC response for a prompts/list request.
+// UnmarshalListPromptsResult parses a JSON-RPC response for a prompts/list request.
 // It expects the standard JSON-RPC response format with the result nested in the "result" field.
 // It returns the result, the response ID, any RPC error, and a general parsing error.
-func UnmarshalListPromptsResponse(data []byte) (*ListPromptsResult, RequestID, *RPCError, error) {
+func UnmarshalListPromptsResult(data []byte) (*ListPromptsResult, RequestID, *RPCError, error) {
 	var resp RPCResponse
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to unmarshal RPC response: %w", err)
@@ -155,12 +156,12 @@ func MarshalGetPromptRequest(id RequestID, params GetPromptParams) ([]byte, erro
 	return json.Marshal(req)
 }
 
-// UnmarshalGetPromptResponse parses a JSON-RPC response for a prompts/get request.
+// UnmarshalGetPromptResult parses a JSON-RPC response for a prompts/get request.
 // It expects the standard JSON-RPC response format with the result nested in the "result" field.
 // It returns the result, the response ID, any RPC error, and a general parsing error.
 // Note: The Content field within each PromptMessage in the result's Messages array
 // will contain json.RawMessage elements that need further unmarshaling by the caller.
-func UnmarshalGetPromptResponse(data []byte) (*GetPromptResult, RequestID, *RPCError, error) {
+func UnmarshalGetPromptResult(data []byte) (*GetPromptResult, RequestID, *RPCError, error) {
 	var resp RPCResponse
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to unmarshal RPC response: %w", err)
@@ -186,6 +187,25 @@ func UnmarshalGetPromptResponse(data []byte) (*GetPromptResult, RequestID, *RPCE
 	return &result, resp.ID, nil, nil
 }
 
-// Note: Standard json.Marshal and json.Unmarshal can be used for the other defined types.
-// For PromptMessage.Content, further processing is needed after unmarshaling
-// to determine the concrete type (TextContent, ImageContent, or EmbeddedResource).
+// MarshalInitializeResult marshals a successful InitializeResult into a full RPCResponse and sends it.
+// Returns the marshalled bytes and any error during marshalling.
+// It does *not* send the bytes itself.
+func MarshalGetPromptResult(id RequestID, result GetPromptResult, logger *utils.Logger) ([]byte, error) {
+	return MarshalResponse(id, result, logger)
+}
+
+func NewGetPromptResult(messages []PromptMessage) GetPromptResult {
+	return GetPromptResult{
+		Messages: messages,
+	}
+}
+
+func MarshalListPromptResult(id RequestID, result ListPromptsResult, logger *utils.Logger) ([]byte, error) {
+	return MarshalResponse(id, result, logger)
+}
+
+func NewListPromptResult(messages []Prompt) ListPromptsResult {
+	return ListPromptsResult{
+		Prompts: messages,
+	}
+}

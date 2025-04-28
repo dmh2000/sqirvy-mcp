@@ -1,0 +1,15 @@
+2025/04/27 18:27:52 main.go:72: --------------------------------------------------
+2025/04/27 18:27:52 main.go:73: MCP Server starting...
+2025/04/27 18:27:52 main.go:74: Logging to file: mcp-server.log
+2025/04/27 18:27:52 main.go:75: Log level: DEBUG
+2025/04/27 18:27:52 main.go:76: Project root: /home/dmh2000/projects/sqirvy-mcp
+2025/04/27 18:27:55 main.go:72: --------------------------------------------------
+2025/04/27 18:27:55 main.go:73: MCP Server starting...
+2025/04/27 18:27:55 main.go:74: Logging to file: mcp-server.log
+2025/04/27 18:27:55 main.go:75: Log level: DEBUG
+2025/04/27 18:27:55 main.go:76: Project root: /home/dmh2000/projects/sqirvy-mcp
+2025/04/27 18:27:55 server.go:179: R:{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{"sampling":{},"roots":{"listChanged":true}},"clientInfo":{"name":"mcp-inspector","version":"0.10.2"}}}
+2025/04/27 18:27:55 server.go:179: R:{"jsonrpc":"2.0","method":"notifications/initialized"}
+2025/04/27 18:27:59 server.go:179: R:{"jsonrpc":"2.0","id":1,"method":"prompts/list","params":{"_meta":{"progressToken":1}}}
+2025/04/27 18:27:59 handlers.go:190: Handle  : prompts/list request (ID: 1)
+2025/04/27 18:27:59 server.go:355: S:{"jsonrpc":"2.0","id":1,"result":{"prompts":[{"arguments":[{"description":"The user's query","name":"A"},{"description":"The user's query","name":"B"},{"description":"The user's query","name":"C"}],"description":"A prompt for querying information using the Sqirvy system","name":"query"}]}}

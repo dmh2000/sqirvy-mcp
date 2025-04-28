@@ -88,25 +88,15 @@ func (s *Server) handleInitializeRequest(id mcp.RequestID, payload []byte) ([]by
 	// TODO: Add more robust version negotiation if needed.
 	// TODO: Inspect params.Capabilities and potentially enable/disable server features.
 
-	// --- Prepare Response ---
-	result := mcp.InitializeResult{
-		ProtocolVersion: s.serverVersion,
-		ServerInfo:      s.serverInfo,
-		Capabilities: mcp.ServerCapabilities{
-			// Explicitly state no capabilities initially.
-			// Explicitly state capabilities.
-			// Logging:   map[string]interface{}{}, // Example: Empty object indicates basic support
-			Prompts:   &mcp.ServerCapabilitiesPrompts{ListChanged: false},
-			Resources: &mcp.ServerCapabilitiesResources{ListChanged: false, Subscribe: false}, // Announce resource support
-			Tools:     &mcp.ServerCapabilitiesTools{ListChanged: false},                       // Announce tool support (ping tool added)
-		},
-		Instructions: "Welcome to the Go MCP Example Server! The 'random_data' resource, 'ping' tool, and 'query' prompt are available.", // Optional, updated instructions
-	}
+	// // --- Prepare Response ---
+	result := mcp.NewInitializeResult(
+		&mcp.ServerCapabilitiesPrompts{ListChanged: false},
+		&mcp.ServerCapabilitiesResources{ListChanged: false, Subscribe: false},
+		&mcp.ServerCapabilitiesTools{ListChanged: false},
+	)
 
-	// Marshal the successful response using the server's helper
-	responseBytes, err := s.marshalResponse(id, result)
+	responseBytes, err := mcp.MarshalInitializeResult(id, result, s.logger)
 	if err != nil {
-		// marshalResponse already logged the error and returns marshalled error bytes
 		return responseBytes, err // Return the error bytes and the original marshalling error
 	}
 
@@ -210,12 +200,9 @@ func (s *Server) handleListPrompts(id mcp.RequestID) ([]byte, error) {
 		},
 	}
 
-	// Add prompts to the result
-	result := mcp.ListPromptsResult{
-		Prompts: []mcp.Prompt{sqirvyQueryPrompt},
-		// NextCursor: "",
-	}
-	return s.marshalResponse(id, result)
+	p := []mcp.Prompt{sqirvyQueryPrompt}
+	r := mcp.NewListPromptResult(p)
+	return s.marshalResponse(id, r)
 }
 
 func (s *Server) handleGetPrompt(id mcp.RequestID, payload []byte) ([]byte, error) {

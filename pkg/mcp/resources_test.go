@@ -84,7 +84,7 @@ func TestMarshalListResourceTemplatesRequest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := MarshalListResourceTemplatesRequest(tt.id, tt.params)
+			got, err := MarshalListResourceTemplatesResult(tt.id, tt.params)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("MarshalListResourceTemplatesRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -163,7 +163,7 @@ func TestUnmarshalListResourceTemplatesResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResult, gotID, gotErr, parseErr := UnmarshalListResourceTemplatesResponse([]byte(tt.data))
+			gotResult, gotID, gotErr, parseErr := UnmarshalListResourceTemplatesResult([]byte(tt.data))
 
 			if (parseErr != nil) != tt.parseErr {
 				t.Fatalf("UnmarshalListResourceTemplatesResponse() parseErr = %v, want parseErr %v", parseErr, tt.parseErr)
@@ -244,7 +244,7 @@ func TestUnmarshalListResourcesResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResult, gotID, gotErr, parseErr := UnmarshalListResourcesResponse([]byte(tt.data))
+			gotResult, gotID, gotErr, parseErr := UnmarshalListResourcesResult([]byte(tt.data))
 
 			if (parseErr != nil) != tt.parseErr {
 				t.Fatalf("UnmarshalListResourcesResponse() parseErr = %v, want parseErr %v", parseErr, tt.parseErr)
@@ -380,7 +380,7 @@ func TestUnmarshalReadResourceResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResult, gotID, gotErr, parseErr := UnmarshalReadResourcesResponse([]byte(tt.data))
+			gotResult, gotID, gotErr, parseErr := UnmarshalReadResourcesResult([]byte(tt.data))
 
 			if (parseErr != nil) != tt.parseErr {
 				t.Fatalf("UnmarshalReadResourceResponse() parseErr = %v, want parseErr %v", parseErr, tt.parseErr)
