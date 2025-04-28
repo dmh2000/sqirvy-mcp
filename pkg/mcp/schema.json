@@ -200,7 +200,7 @@
                     "$ref": "#/definitions/ListResourcesRequest"
                 },
                 {
-                    "$ref": "#/definitions/ListResourceTemplatesRequest"
+                    "$ref": "#/definitions/ListResourcesTemplatessRequest"
                 },
                 {
                     "$ref": "#/definitions/ReadResourceRequest"
@@ -871,7 +871,7 @@
             ],
             "type": "object"
         },
-        "ListResourceTemplatesRequest": {
+        "ListResourcesTemplatessRequest": {
             "description": "Sent from the client to request a list of resource templates the server has.",
             "properties": {
                 "method": {
@@ -893,7 +893,7 @@
             ],
             "type": "object"
         },
-        "ListResourceTemplatesResult": {
+        "ListResourcesTemplatessResult": {
             "description": "The server's response to a resources/templates/list request from the client.",
             "properties": {
                 "_meta": {
@@ -907,7 +907,7 @@
                 },
                 "resourceTemplates": {
                     "items": {
-                        "$ref": "#/definitions/ResourceTemplate"
+                        "$ref": "#/definitions/ResourcesTemplates"
                     },
                     "type": "array"
                 }
@@ -1582,7 +1582,7 @@
             ],
             "type": "object"
         },
-        "ResourceTemplate": {
+        "ResourcesTemplates": {
             "description": "A template description for resources available on the server.",
             "properties": {
                 "annotations": {
@@ -1843,7 +1843,7 @@
                     "$ref": "#/definitions/ListResourcesResult"
                 },
                 {
-                    "$ref": "#/definitions/ListResourceTemplatesResult"
+                    "$ref": "#/definitions/ListResourcesTemplatessResult"
                 },
                 {
                     "$ref": "#/definitions/ReadResourceResult"
@@ -2074,4 +2074,3 @@
         }
     }
 }
-

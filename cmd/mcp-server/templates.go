@@ -14,7 +14,7 @@ import (
 )
 
 // Define the random_data template
-var RandomDataTemplate mcp.ResourceTemplate = mcp.ResourceTemplate{
+var RandomDataTemplate mcp.ResourcesTemplates = mcp.ResourcesTemplates{
 	Name:        "random_data",
 	URITemplate: "data://random_data?length={length}", // RFC 6570 template
 	Description: "Returns a string of random ASCII characters. Use URI like 'data://random_data?length=N' in resources/read, where N is the desired length.",

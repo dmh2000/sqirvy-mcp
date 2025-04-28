@@ -26,21 +26,14 @@ var exampleFileResource mcp.Resource = mcp.Resource{
 func (s *Server) handleReadResource(id mcp.RequestID, payload []byte) ([]byte, error) {
 	s.logger.Printf("DEBUG", "Handle  : resources/read request (ID: %v)", id)
 
-	var req mcp.RPCRequest
-	var params mcp.ReadResourceParams
-	if err := json.Unmarshal(payload, &req); err != nil {
-		err = fmt.Errorf("failed to unmarshal base read resource request: %w", err)
-		s.logger.Println("DEBUG", err.Error())
-		rpcErr := mcp.NewRPCError(mcp.ErrorCodeParseError, err.Error(), nil)
-		return s.marshalErrorResponse(id, rpcErr)
+	req, id, rpcErr, err := mcp.UnmarshalReadResourceRequest(id, payload, s.logger)
+	if err != nil {
+		return nil, err
 	}
 
-	// Explanation: While req.Params could be accessed directly as map[string]interface{},
-	// re-marshalling and then unmarshalling into the specific params struct provides:
-	// 1. Consistency with other handlers (e.g., initialize).
-	// 2. Implicit validation against the expected struct (ReadResourceParams).
-	// 3. Better maintainability if the params struct evolves.
-	// 4. Type safety in subsequent code using the 'params' variable.
+	if rpcErr != nil {
+		return s.marshalErrorResponse(id, rpcErr)
+	}
 
 	// Marshal the params interface{} back to bytes
 	paramsBytes, err := json.Marshal(req.Params)
@@ -52,6 +45,7 @@ func (s *Server) handleReadResource(id mcp.RequestID, payload []byte) ([]byte, e
 	}
 
 	// Now unmarshal the bytes into the specific params struct
+	var params mcp.ReadResourceParams
 	if err := json.Unmarshal(paramsBytes, &params); err != nil {
 		err = fmt.Errorf("failed to unmarshal specific read resource params: %w", err)
 		s.logger.Println("DEBUG", err.Error())
