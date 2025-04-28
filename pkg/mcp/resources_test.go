@@ -58,7 +58,7 @@ func TestMarshalListResourcesTemplatessRequest(t *testing.T) {
 	tests := []struct {
 		name    string
 		id      RequestID
-		params  *ListResourcesTemplatessParams
+		params  *ListResourcesTemplatesParams
 		want    string
 		wantErr bool
 	}{
@@ -71,20 +71,20 @@ func TestMarshalListResourcesTemplatessRequest(t *testing.T) {
 		{
 			name:   "with params, int id",
 			id:     601,
-			params: &ListResourcesTemplatessParams{Cursor: "tmpl-cursor-xyz"},
+			params: &ListResourcesTemplatesParams{Cursor: "tmpl-cursor-xyz"},
 			want:   `{"jsonrpc":"2.0","method":"resources/templates/list","params":{"cursor":"tmpl-cursor-xyz"},"id":601}`,
 		},
 		{
 			name:   "empty params, int id",
 			id:     602,
-			params: &ListResourcesTemplatessParams{},
+			params: &ListResourcesTemplatesParams{},
 			want:   `{"jsonrpc":"2.0","method":"resources/templates/list","params":{},"id":602}`,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := MarshalListResourcesTemplatessResult(tt.id, tt.params)
+			got, err := MarshalListResourcesTemplatesResult(tt.id, tt.params)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("MarshalListResourcesTemplatessRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return
