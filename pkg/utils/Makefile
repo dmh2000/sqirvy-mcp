@@ -14,7 +14,7 @@ build:
 test:
 	@echo "Testing utils..."
 	@if [ "$(TEST_FILES)" != "" ]; then \
-		go test -v .; \
+		go test .; \
 	fi
 
 clean:

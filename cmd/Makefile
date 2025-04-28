@@ -5,13 +5,12 @@
 all: build test
 
 build:
-	@echo "Building cmd... (placeholder for now)"
-	# No Go files yet, will be updated when executables are added
+	$(MAKE) -C mcp-server build
 
 test:
-	@echo "Testing cmd... (placeholder for now)"
-	# No tests yet, will be updated when tests are added
+	$(MAKE) -C mcp-server test
 
 clean:
-	@echo "Cleaning cmd... (placeholder for now)"
-	# Nothing to clean yet
+	$(MAKE) -C mcp-server clean
+	@rm -f bin/mcp-server
+	@rm -f bin/mcp-server.log
