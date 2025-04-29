@@ -80,6 +80,7 @@ type InitializeResult struct {
 }
 
 // MarshalInitializeRequest creates a JSON-RPC request for the initialize method.
+// Intended for use by the client.
 // The id can be a string or an integer.
 func MarshalInitializeRequest(id RequestID, params InitializeParams) ([]byte, error) {
 	req := RPCRequest{
@@ -92,6 +93,7 @@ func MarshalInitializeRequest(id RequestID, params InitializeParams) ([]byte, er
 }
 
 // UnmarshalInitializeResult parses a JSON-RPC response for an initialize request.
+// Intended for use by the client.
 // It expects the standard JSON-RPC response format with the result nested in the "result" field.
 // It returns the result, the response ID, any RPC error, and a general parsing error.
 func UnmarshalInitializeResult(data []byte) (*InitializeResult, RequestID, *RPCError, error) {
@@ -120,10 +122,76 @@ func UnmarshalInitializeResult(data []byte) (*InitializeResult, RequestID, *RPCE
 }
 
 // ---------------------------------------------------------
-// response marshaling
+// Request Unmarshaling (Server-Side)
 // ---------------------------------------------------------
 
-// MarshalInitializeResult marshals a successful InitializeResult into a full RPCResponse and sends it.
+// UnmarshalInitializeRequest parses the parameters from a JSON-RPC request for the initialize method.
+// Intended for use by the server.
+// It unmarshals the entire request and specifically parses the `params` field into InitializeParams.
+// It returns the parsed parameters, the request ID, any RPC error encountered during parsing, and a general parsing error.
+func UnmarshalInitializeRequest(payload []byte, logger *utils.Logger) (*InitializeParams, RequestID, *RPCError, error) {
+	var req RPCRequest
+	if err := json.Unmarshal(payload, &req); err != nil {
+		err = fmt.Errorf("failed to unmarshal base initialize request: %w", err)
+		logger.Println("ERROR", err.Error())
+		rpcErr := NewRPCError(ErrorCodeParseError, err.Error(), nil)
+		// Return nil params, nil ID (as we couldn't parse it), the RPC error, and the Go error
+		return nil, nil, rpcErr, err
+	}
+
+	// Now, unmarshal the Params field specifically into InitializeParams
+	var params InitializeParams
+
+	// Handle cases where params might be missing or explicitly null in the JSON
+	rawParams, ok := req.Params.(json.RawMessage)
+	if !ok && req.Params != nil {
+		// This case means Params was not a JSON object/array/null, which is invalid for this method.
+		err := fmt.Errorf("invalid type for params field: expected JSON object, got %T", req.Params)
+		logger.Println("ERROR", err.Error())
+		// Use InvalidRequest as the structure itself is wrong if params isn't marshalable
+		rpcErr := NewRPCError(ErrorCodeInvalidRequest, "Invalid params field type", err.Error())
+		return nil, req.ID, rpcErr, err
+	}
+
+	// For Initialize, the 'params' object itself is required.
+	if len(rawParams) == 0 || string(rawParams) == "null" {
+		err := fmt.Errorf("missing required params field for method %s", MethodInitialize)
+		logger.Println("ERROR", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Missing required parameters object", nil)
+		return nil, req.ID, rpcErr, err
+	}
+
+	// Attempt to unmarshal the params
+	if err := json.Unmarshal(rawParams, &params); err != nil {
+		err = fmt.Errorf("failed to unmarshal InitializeParams from request params: %w", err)
+		logger.Println("ERROR", err.Error())
+		// Use InvalidParams error code as the request structure was valid, but params content wasn't
+		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Invalid parameters for initialize", err.Error())
+		return nil, req.ID, rpcErr, err
+	}
+
+	// Validate required fields within params
+	if params.ProtocolVersion == "" {
+		err := fmt.Errorf("missing required 'protocolVersion' field in params for method %s", MethodInitialize)
+		logger.Println("ERROR", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Missing required 'protocolVersion' parameter", nil)
+		return nil, req.ID, rpcErr, err
+	}
+	// ClientInfo and Capabilities are structs, so they will exist but might be empty.
+	// Further validation could be added here if specific fields within them are required.
+	// For example, checking ClientInfo.Name:
+	// if params.ClientInfo.Name == "" { ... }
+
+	// Successfully parsed and validated params
+	return &params, req.ID, nil, nil
+}
+
+// ---------------------------------------------------------
+// Response Marshaling (Server-Side)
+// ---------------------------------------------------------
+
+// MarshalInitializeResult marshals a successful InitializeResult into a full RPCResponse.
+// Intended for use by the server.
 // Returns the marshalled bytes and any error during marshalling.
 // It does *not* send the bytes itself.
 func MarshalInitializeResult(id RequestID, result InitializeResult, logger *utils.Logger) ([]byte, error) {
