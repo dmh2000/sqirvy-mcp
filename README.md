@@ -14,6 +14,8 @@ The project is organized into the following main directories:
     *   **`cmd/mcp-server/`**: An example MCP server implementation demonstrating how to use the `pkg/mcp` and `pkg/transport` packages. It handles standard MCP requests like `initialize`, `ping`, `tools/list`, `resources/read`, etc., over standard I/O. See [cmd/mcp-server/README.md](cmd/mcp-server/README.md) for details.
 *   **`pkg/`**: Contains reusable library packages.
     *   **`pkg/mcp/`**: The core package implementing the MCP specification. It defines Go types for all MCP messages (requests, responses, notifications, errors) and provides functions for marshaling and unmarshaling these messages to/from JSON. See [pkg/mcp/README.md](pkg/mcp/README.md) for details.
+    It includes type definitions for all definitions in the official [MCP schema specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/schema/2025-03-26/schema.json). That file is included in pkg/mcp/schema.json.
+    
     *   **`pkg/transport/`**: Provides an abstraction layer for sending and receiving MCP messages over different communication channels, primarily focusing on standard I/O (`io.Reader`/`io.Writer`). See [pkg/transport/README.md](pkg/transport/README.md) for details.
     *   **`pkg/utils/`**: Contains general utility functions used across the project, currently focused on providing a flexible, level-based logger. See [pkg/utils/README.md](pkg/utils/README.md) for details.
 
