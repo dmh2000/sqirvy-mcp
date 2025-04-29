@@ -289,10 +289,10 @@ func TestUnmarshalGetPromptResponse(t *testing.T) {
 			}
 			// Compare other fields like Meta, Description if needed
 			if gotResult.Description != tt.wantResult.Description {
-				t.Errorf("UnmarshalGetPromptResponse() Description got = %s, want %s", gotResult.Description, tt.wantResult.Description)
+				t.Errorf("UnmarshalGetPromptResult() Description got = %s, want %s", gotResult.Description, tt.wantResult.Description)
 			}
 			if !reflect.DeepEqual(gotResult.Meta, tt.wantResult.Meta) {
-				t.Errorf("UnmarshalGetPromptResponse() Meta got = %v, want %v", gotResult.Meta, tt.wantResult.Meta)
+				t.Errorf("UnmarshalGetPromptResult() Meta got = %v, want %v", gotResult.Meta, tt.wantResult.Meta)
 			}
 		})
 	}
