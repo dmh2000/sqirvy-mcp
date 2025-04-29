@@ -43,6 +43,4 @@ The project is organized into the following main directories:
     go test ./pkg/utils/...
     ```
 
-## Contributing
 
-Contributions are welcome! Please refer to the contribution guidelines (TODO: Add contribution guidelines) for more information.

@@ -13,3 +13,23 @@
 2025/04/27 18:27:59 server.go:179: R:{"jsonrpc":"2.0","id":1,"method":"prompts/list","params":{"_meta":{"progressToken":1}}}
 2025/04/27 18:27:59 handlers.go:190: Handle  : prompts/list request (ID: 1)
 2025/04/27 18:27:59 server.go:355: S:{"jsonrpc":"2.0","id":1,"result":{"prompts":[{"arguments":[{"description":"The user's query","name":"A"},{"description":"The user's query","name":"B"},{"description":"The user's query","name":"C"}],"description":"A prompt for querying information using the Sqirvy system","name":"query"}]}}
+2025/04/29 09:41:55 main.go:72: --------------------------------------------------
+2025/04/29 09:41:55 main.go:73: MCP Server starting...
+2025/04/29 09:41:55 main.go:74: Logging to file: mcp-server.log
+2025/04/29 09:41:55 main.go:75: Log level: DEBUG
+2025/04/29 09:41:55 main.go:76: Project root: /home/dmh2000/projects/sqirvy-mcp
+2025/04/29 09:41:55 server.go:179: R:{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{"sampling":{},"roots":{"listChanged":true}},"clientInfo":{"name":"mcp-inspector","version":"0.10.2"}}}
+2025/04/29 09:41:55 server.go:179: R:{"jsonrpc":"2.0","method":"notifications/initialized"}
+2025/04/29 09:42:01 server.go:179: R:{"jsonrpc":"2.0","id":1,"method":"prompts/list","params":{"_meta":{"progressToken":1}}}
+2025/04/29 09:42:01 handlers.go:190: Handle  : prompts/list request (ID: 1)
+2025/04/29 09:42:01 server.go:355: S:{"jsonrpc":"2.0","id":1,"result":{"prompts":[{"arguments":[{"description":"The user's query","name":"A"},{"description":"The user's query","name":"B"},{"description":"The user's query","name":"C"}],"description":"A prompt for querying information using the Sqirvy system","name":"query"}]}}
+2025/04/29 09:42:04 server.go:179: R:{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{"_meta":{"progressToken":2}}}
+2025/04/29 09:42:04 handlers.go:111: Handle  : tools/list request (ID: 2)
+2025/04/29 09:42:04 server.go:355: S:{"jsonrpc":"2.0","id":2,"result":{"tools":[{"description":"Pings the network address once.","inputSchema":{"properties":{"address":{"description":"The IP address or hostname to ping","type":"string"}},"required":["address"],"type":"object"},"name":"ping"}]}}
+2025/04/29 09:42:09 server.go:179: R:{"jsonrpc":"2.0","id":3,"method":"ping","params":{"_meta":{"progressToken":3}}}
+2025/04/29 09:42:09 server.go:355: S:{"jsonrpc":"2.0","id":3,"result":{}}
+2025/04/29 09:42:21 server.go:179: R:{"jsonrpc":"2.0","id":4,"method":"resources/list","params":{"_meta":{"progressToken":4}}}
+2025/04/29 09:42:21 handlers.go:252: Handle  : resources/list request (ID: 4)
+2025/04/29 09:42:23 server.go:179: R:{"jsonrpc":"2.0","id":5,"method":"resources/templates/list","params":{"_meta":{"progressToken":5}}}
+2025/04/29 09:42:23 handlers.go:265: Handle  : resources/templates/list request (ID: 5)
+2025/04/29 09:42:23 server.go:355: S:{"jsonrpc":"2.0","id":5,"result":{"resourceTemplates":[{"description":"Returns a string of random ASCII characters. Use URI like 'data://random_data?length=N' in resources/read, where N is the desired length.","mimeType":"text/plain","name":"random_data","uriTemplate":"data://random_data?length={length}"}]}}
