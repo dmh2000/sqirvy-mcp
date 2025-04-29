@@ -2,19 +2,21 @@
 
 .PHONY: all build test clean
 
+SILENT=-s
+
 all: build test
 
 build:
 	@echo "Building sqirvy-mcp project..."
-	@$(MAKE) -C pkg build
-	@$(MAKE) -C cmd build
+	@$(MAKE) $(SILENT) -C pkg build
+	@$(MAKE) $(SILENT) -C cmd build
 
 test:
 	@echo "Testing sqirvy-mcp project..."
-	@$(MAKE) -C pkg test
-	@$(MAKE) -C cmd test
+	@$(MAKE) $(SILENT) -C pkg test
+	@$(MAKE) $(SILENT) -C cmd test
 
 clean:
 	@echo "Cleaning sqirvy-mcp project..."
-	@$(MAKE) -C pkg clean
-	@$(MAKE) -C cmd clean
+	@$(MAKE) $(SILENT) -C pkg clean
+	@$(MAKE) $(SILENT) -C cmd clean

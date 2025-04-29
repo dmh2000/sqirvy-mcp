@@ -2,7 +2,7 @@
 
 .PHONY: all build test clean
 
-SUBDIRS := transport types utils
+SUBDIRS := mcp transport utils
 
 all: build test
 

@@ -6,6 +6,10 @@ This repository contains a Go implementation of the Model Context Protocol (MCP)
 
 The Model Context Protocol (MCP) defines a standard way for AI clients (like large language models or specialized agents) to interact with servers that provide context, tools, or other resources. This project aims to provide robust and easy-to-use Go packages for building MCP-compliant clients and servers.
 
+- Notes
+  - The implementation of MCP prompts, resources and tools are hard coded example placeholders. The next update will add methods to be more convenient for adding real functionality.
+  - This implementation currently uses the STDIO transport protocol. Future updates will support the server side event (SSE) protocol also.
+
 ## Project Structure
 
 The project is organized into the following main directories:
