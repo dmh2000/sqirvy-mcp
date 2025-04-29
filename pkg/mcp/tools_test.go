@@ -252,7 +252,7 @@ func TestUnmarshalCallToolResponse(t *testing.T) {
 	tests := []struct {
 		name       string
 		data       string
-		wantResult *CallToolResult // Compare raw messages
+		wantResult CallToolResult // Changed to value type
 		wantID     RequestID
 		wantErr    *RPCError
 		parseErr   bool
@@ -319,12 +319,9 @@ func TestUnmarshalCallToolResponse(t *testing.T) {
 				t.Errorf("UnmarshalCallToolResponse() gotID = %v, want %v", gotID, tt.wantID)
 			}
 
-			// Compare CallToolResult, focusing on the raw Content
-			if gotResult == nil && tt.wantResult != nil {
-				t.Errorf("UnmarshalCallToolResponse() gotResult is nil, want %v", tt.wantResult)
-			} else if gotResult != nil && tt.wantResult == nil {
-				t.Errorf("UnmarshalCallToolResponse() gotResult = %v, want nil", gotResult)
-			} else if gotResult != nil && tt.wantResult != nil {
+			// Only compare results if no error was expected
+			if tt.wantErr == nil && !tt.parseErr {
+				// Compare CallToolResult, focusing on the raw Content
 				if gotResult.IsError != tt.wantResult.IsError {
 					t.Errorf("UnmarshalCallToolResponse() IsError got = %v, want %v", gotResult.IsError, tt.wantResult.IsError)
 				}
@@ -345,6 +342,12 @@ func TestUnmarshalCallToolResponse(t *testing.T) {
 				// Compare Meta if needed
 				if !reflect.DeepEqual(gotResult.Meta, tt.wantResult.Meta) {
 					t.Errorf("UnmarshalCallToolResponse() Meta got = %v, want %v", gotResult.Meta, tt.wantResult.Meta)
+				}
+			} else {
+				// If an error was expected, ensure the returned result is the zero value
+				var zeroResult CallToolResult
+				if !reflect.DeepEqual(gotResult, zeroResult) {
+					t.Errorf("UnmarshalCallToolResponse() expected zero result on error, but got = %+v", gotResult)
 				}
 			}
 		})
