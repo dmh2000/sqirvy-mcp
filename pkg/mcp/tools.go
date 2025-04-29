@@ -90,10 +90,10 @@ func MarshalListToolsRequest(id RequestID, params *ListToolsParams) ([]byte, err
 	return json.Marshal(req)
 }
 
-// UnmarshalListToolsResponse parses a JSON-RPC response for a tools/list request.
+// UnmarshalListToolsResult parses a JSON-RPC response for a tools/list request.
 // It expects the standard JSON-RPC response format with the result nested in the "result" field.
 // It returns the result, the response ID, any RPC error, and a general parsing error.
-func UnmarshalListToolsResponse(data []byte) (*ListToolsResult, RequestID, *RPCError, error) {
+func UnmarshalListToolsResult(data []byte) (*ListToolsResult, RequestID, *RPCError, error) {
 	var resp RPCResponse
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to unmarshal RPC response: %w", err)
@@ -161,7 +161,3 @@ func UnmarshalCallToolResponse(data []byte) (*CallToolResult, RequestID, *RPCErr
 	// The caller needs to process result.Content further
 	return &result, resp.ID, nil, nil
 }
-
-// Note: Standard json.Marshal and json.Unmarshal can be used for the other defined types.
-// For CallToolResult.Content and EmbeddedResource.Resource, further processing is needed after unmarshaling
-// to determine the concrete type.

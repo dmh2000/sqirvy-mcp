@@ -277,13 +277,12 @@ func TestUnmarshalGetPromptResponse(t *testing.T) {
 					if i >= len(tt.wantResult.Messages) { // Prevent index out of bounds if lengths differ (already checked, but defensive)
 						break
 					}
-						if gotResult.Messages[i].Role != tt.wantResult.Messages[i].Role {
-							t.Errorf("UnmarshalGetPromptResult() Messages[%d].Role got = %s, want %s", i, gotResult.Messages[i].Role, tt.wantResult.Messages[i].Role)
-						}
-						// Compare raw JSON bytes for content
-						if !reflect.DeepEqual(gotResult.Messages[i].Content, tt.wantResult.Messages[i].Content) {
-							t.Errorf("UnmarshalGetPromptResult() Messages[%d].Content got = %s, want %s", i, gotResult.Messages[i].Content, tt.wantResult.Messages[i].Content)
-						}
+					if gotResult.Messages[i].Role != tt.wantResult.Messages[i].Role {
+						t.Errorf("UnmarshalGetPromptResult() Messages[%d].Role got = %s, want %s", i, gotResult.Messages[i].Role, tt.wantResult.Messages[i].Role)
+					}
+					// Compare raw JSON bytes for content
+					if !reflect.DeepEqual(gotResult.Messages[i].Content, tt.wantResult.Messages[i].Content) {
+						t.Errorf("UnmarshalGetPromptResult() Messages[%d].Content got = %s, want %s", i, gotResult.Messages[i].Content, tt.wantResult.Messages[i].Content)
 					}
 				}
 			}

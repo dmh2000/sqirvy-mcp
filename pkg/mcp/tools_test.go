@@ -48,7 +48,7 @@ func TestMarshalListToolsRequest(t *testing.T) {
 	}
 }
 
-func TestUnmarshalListToolsResponse(t *testing.T) {
+func TestUnmarshalListToolsResult(t *testing.T) {
 	sampleTool := Tool{
 		Name:        "calculate_sum",
 		Description: "Adds two numbers.",
@@ -116,20 +116,20 @@ func TestUnmarshalListToolsResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResult, gotID, gotErr, parseErr := UnmarshalListToolsResponse([]byte(tt.data))
+			gotResult, gotID, gotErr, parseErr := UnmarshalListToolsResult([]byte(tt.data))
 
 			if (parseErr != nil) != tt.parseErr {
-				t.Fatalf("UnmarshalListToolsResponse() parseErr = %v, want parseErr %v", parseErr, tt.parseErr)
+				t.Fatalf("UnmarshalListToolsResult() parseErr = %v, want parseErr %v", parseErr, tt.parseErr)
 			}
 			if tt.parseErr {
 				return
 			}
 
 			if !reflect.DeepEqual(gotErr, tt.wantErr) {
-				t.Errorf("UnmarshalListToolsResponse() gotErr = %v, want %v", gotErr, tt.wantErr)
+				t.Errorf("UnmarshalListToolsResult() gotErr = %v, want %v", gotErr, tt.wantErr)
 			}
 			if !reflect.DeepEqual(gotID, tt.wantID) {
-				t.Errorf("UnmarshalListToolsResponse() gotID = %v, want %v", gotID, tt.wantID)
+				t.Errorf("UnmarshalListToolsResult() gotID = %v, want %v", gotID, tt.wantID)
 			}
 
 			// Compare marshaled JSON of results instead of DeepEqual on structs
@@ -151,7 +151,7 @@ func TestUnmarshalListToolsResponse(t *testing.T) {
 				// Indent for readability in error message
 				gotJSONIndent, _ := json.MarshalIndent(gotResult, "", "  ")
 				wantJSONIndent, _ := json.MarshalIndent(tt.wantResult, "", "  ")
-				t.Errorf("UnmarshalListToolsResponse() gotResult JSON = \n%s\nwant JSON = \n%s", string(gotJSONIndent), string(wantJSONIndent))
+				t.Errorf("UnmarshalListToolsResult() gotResult JSON = \n%s\nwant JSON = \n%s", string(gotJSONIndent), string(wantJSONIndent))
 			}
 		})
 	}
