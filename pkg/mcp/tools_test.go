@@ -260,19 +260,19 @@ func TestUnmarshalCallToolResponse(t *testing.T) {
 		{
 			name:       "valid response, string id",
 			data:       `{"jsonrpc":"2.0","result":` + string(resultJSON) + `,"id":"tool-call-res-1"}`,
-			wantResult: &sampleResult,
+			wantResult: sampleResult, // Use value
 			wantID:     "tool-call-res-1",
 		},
 		{
 			name:       "valid response, int id",
 			data:       `{"jsonrpc":"2.0","result":` + string(resultJSON) + `,"id":410}`,
-			wantResult: &sampleResult,
+			wantResult: sampleResult, // Use value
 			wantID:     float64(410),
 		},
 		{
 			name:       "tool error response (isError=true)",
 			data:       `{"jsonrpc":"2.0","result":` + string(errorResultJSON) + `,"id":411}`,
-			wantResult: &sampleErrorResult,
+			wantResult: sampleErrorResult, // Use value
 			wantID:     float64(411),
 		},
 		{
@@ -283,21 +283,25 @@ func TestUnmarshalCallToolResponse(t *testing.T) {
 				Code:    -32002,
 				Message: "Tool execution failed",
 			},
+			wantResult: CallToolResult{}, // Expect zero value on RPC error
 		},
 		{
-			name:     "malformed json",
-			data:     `{"jsonrpc":"2.0", "result": {"content": [}`,
-			parseErr: true,
+			name:       "malformed json",
+			data:       `{"jsonrpc":"2.0", "result": {"content": [}`,
+			parseErr:   true,
+			wantResult: CallToolResult{}, // Expect zero value on parse error
 		},
 		{
-			name:     "missing result field",
-			data:     `{"jsonrpc":"2.0","id":413}`,
-			parseErr: true,
+			name:       "missing result field",
+			data:       `{"jsonrpc":"2.0","id":413}`,
+			parseErr:   true,
+			wantResult: CallToolResult{}, // Expect zero value on parse error
 		},
 		{
-			name:     "null result field",
-			data:     `{"jsonrpc":"2.0","result":null,"id":414}`,
-			parseErr: true,
+			name:       "null result field",
+			data:       `{"jsonrpc":"2.0","result":null,"id":414}`,
+			parseErr:   true,
+			wantResult: CallToolResult{}, // Expect zero value on parse error
 		},
 	}
 
