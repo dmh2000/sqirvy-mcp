@@ -71,7 +71,7 @@ func TestUnmarshalListPromptsResponse(t *testing.T) {
 	tests := []struct {
 		name       string
 		data       string
-		wantResult *ListPromptsResult
+		wantResult ListPromptsResult // Changed from pointer
 		wantID     RequestID
 		wantErr    *RPCError
 		parseErr   bool
@@ -79,13 +79,13 @@ func TestUnmarshalListPromptsResponse(t *testing.T) {
 		{
 			name:       "valid response, string id",
 			data:       `{"jsonrpc":"2.0","result":` + string(resultJSON) + `,"id":"prompt-res-1"}`,
-			wantResult: &sampleResult,
+			wantResult: sampleResult, // Changed from pointer
 			wantID:     "prompt-res-1",
 		},
 		{
 			name:       "valid response, int id",
 			data:       `{"jsonrpc":"2.0","result":` + string(resultJSON) + `,"id":110}`,
-			wantResult: &sampleResult,
+			wantResult: sampleResult, // Changed from pointer
 			wantID:     float64(110),
 		},
 		{
@@ -131,8 +131,12 @@ func TestUnmarshalListPromptsResponse(t *testing.T) {
 			if !reflect.DeepEqual(gotID, tt.wantID) {
 				t.Errorf("UnmarshalListPromptsResponse() gotID = %v, want %v", gotID, tt.wantID)
 			}
+			// Compare results directly (not pointers)
 			if !reflect.DeepEqual(gotResult, tt.wantResult) {
-				t.Errorf("UnmarshalListPromptsResponse() gotResult = %+v, want %+v", gotResult, tt.wantResult)
+				// Use JSON marshal for potentially better diff output
+				gotJSON, _ := json.MarshalIndent(gotResult, "", "  ")
+				wantJSON, _ := json.MarshalIndent(tt.wantResult, "", "  ")
+				t.Errorf("UnmarshalListPromptsResponse() Result mismatch:\nGot:\n%s\nWant:\n%s", string(gotJSON), string(wantJSON))
 			}
 		})
 	}
@@ -203,7 +207,7 @@ func TestUnmarshalGetPromptResponse(t *testing.T) {
 	tests := []struct {
 		name       string
 		data       string
-		wantResult *GetPromptResult // Compare raw messages
+		wantResult GetPromptResult // Changed from pointer, compare raw messages
 		wantID     RequestID
 		wantErr    *RPCError
 		parseErr   bool
@@ -211,13 +215,13 @@ func TestUnmarshalGetPromptResponse(t *testing.T) {
 		{
 			name:       "valid response, string id",
 			data:       `{"jsonrpc":"2.0","result":` + string(resultJSON) + `,"id":"prompt-get-res-1"}`,
-			wantResult: &sampleResult,
+			wantResult: sampleResult, // Changed from pointer
 			wantID:     "prompt-get-res-1",
 		},
 		{
 			name:       "valid response, int id",
 			data:       `{"jsonrpc":"2.0","result":` + string(resultJSON) + `,"id":210}`,
-			wantResult: &sampleResult,
+			wantResult: sampleResult, // Changed from pointer
 			wantID:     float64(210),
 		},
 		{
@@ -265,15 +269,14 @@ func TestUnmarshalGetPromptResponse(t *testing.T) {
 			}
 
 			// Compare GetPromptResult, focusing on the raw Content within Messages
-			if gotResult == nil && tt.wantResult != nil {
-				t.Errorf("UnmarshalGetPromptResponse() gotResult is nil, want %v", tt.wantResult)
-			} else if gotResult != nil && tt.wantResult == nil {
-				t.Errorf("UnmarshalGetPromptResponse() gotResult = %v, want nil", gotResult)
-			} else if gotResult != nil && tt.wantResult != nil {
-				if len(gotResult.Messages) != len(tt.wantResult.Messages) {
-					t.Errorf("UnmarshalGetPromptResponse() len(Messages) got = %d, want %d", len(gotResult.Messages), len(tt.wantResult.Messages))
-				} else {
-					for i := range gotResult.Messages {
+			// Compare values directly
+			if len(gotResult.Messages) != len(tt.wantResult.Messages) {
+				t.Errorf("UnmarshalGetPromptResponse() len(Messages) got = %d, want %d", len(gotResult.Messages), len(tt.wantResult.Messages))
+			} else {
+				for i := range gotResult.Messages {
+					if i >= len(tt.wantResult.Messages) { // Prevent index out of bounds if lengths differ (already checked, but defensive)
+						break
+					}
 						if gotResult.Messages[i].Role != tt.wantResult.Messages[i].Role {
 							t.Errorf("UnmarshalGetPromptResponse() Messages[%d].Role got = %s, want %s", i, gotResult.Messages[i].Role, tt.wantResult.Messages[i].Role)
 						}
@@ -283,13 +286,13 @@ func TestUnmarshalGetPromptResponse(t *testing.T) {
 						}
 					}
 				}
-				// Compare other fields like Meta, Description if needed
-				if gotResult.Description != tt.wantResult.Description {
-					t.Errorf("UnmarshalGetPromptResponse() Description got = %s, want %s", gotResult.Description, tt.wantResult.Description)
-				}
-				if !reflect.DeepEqual(gotResult.Meta, tt.wantResult.Meta) {
-					t.Errorf("UnmarshalGetPromptResponse() Meta got = %v, want %v", gotResult.Meta, tt.wantResult.Meta)
-				}
+			}
+			// Compare other fields like Meta, Description if needed
+			if gotResult.Description != tt.wantResult.Description {
+				t.Errorf("UnmarshalGetPromptResponse() Description got = %s, want %s", gotResult.Description, tt.wantResult.Description)
+			}
+			if !reflect.DeepEqual(gotResult.Meta, tt.wantResult.Meta) {
+				t.Errorf("UnmarshalGetPromptResponse() Meta got = %v, want %v", gotResult.Meta, tt.wantResult.Meta)
 			}
 		})
 	}

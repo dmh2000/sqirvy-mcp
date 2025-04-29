@@ -123,31 +123,32 @@ func MarshalListPromptsRequest(id RequestID, params *ListPromptsParams) ([]byte,
 // UnmarshalListPromptsResult parses a JSON-RPC response for a prompts/list request.
 // Intended for use by the client.
 // It expects the standard JSON-RPC response format with the result nested in the "result" field.
-// It returns the result, the response ID, any RPC error, and a general parsing error.
-func UnmarshalListPromptsResult(data []byte) (*ListPromptsResult, RequestID, *RPCError, error) {
+// It returns the result by value, the response ID, any RPC error, and a general parsing error.
+func UnmarshalListPromptsResult(data []byte) (ListPromptsResult, RequestID, *RPCError, error) {
 	var resp RPCResponse
+	var zeroResult ListPromptsResult
 	if err := json.Unmarshal(data, &resp); err != nil {
-		return nil, nil, nil, fmt.Errorf("failed to unmarshal RPC response: %w", err)
+		return zeroResult, nil, nil, fmt.Errorf("failed to unmarshal RPC response: %w", err)
 	}
 
 	// Check for JSON-RPC level error
 	if resp.Error != nil {
-		return nil, resp.ID, resp.Error, nil // Return RPC error, no result expected
+		return zeroResult, resp.ID, resp.Error, nil // Return RPC error, no result expected
 	}
 
 	// Check if the result field is present (it's optional in the RPCResponse struct)
 	if len(resp.Result) == 0 || string(resp.Result) == "null" {
 		// For ListPrompts, we expect a result object.
-		return nil, resp.ID, nil, fmt.Errorf("received response with missing or null result field for method %s", MethodListPrompts)
+		return zeroResult, resp.ID, nil, fmt.Errorf("received response with missing or null result field for method %s", MethodListPrompts)
 	}
 
 	// Unmarshal the actual result from the Result field
 	var result ListPromptsResult
 	if err := json.Unmarshal(resp.Result, &result); err != nil {
-		return nil, resp.ID, nil, fmt.Errorf("failed to unmarshal ListPromptsResult from response result: %w", err)
+		return zeroResult, resp.ID, nil, fmt.Errorf("failed to unmarshal ListPromptsResult from response result: %w", err)
 	}
 
-	return &result, resp.ID, nil, nil
+	return result, resp.ID, nil, nil
 }
 
 // MarshalGetPromptRequest creates a JSON-RPC request for the prompts/get method.
@@ -169,30 +170,31 @@ func MarshalGetPromptRequest(id RequestID, params GetPromptParams) ([]byte, erro
 // It returns the result, the response ID, any RPC error, and a general parsing error.
 // Note: The Content field within each PromptMessage in the result's Messages array
 // will contain json.RawMessage elements that need further unmarshaling by the caller.
-func UnmarshalGetPromptResult(data []byte) (*GetPromptResult, RequestID, *RPCError, error) {
+func UnmarshalGetPromptResult(data []byte) (GetPromptResult, RequestID, *RPCError, error) {
 	var resp RPCResponse
+	var zeroResult GetPromptResult
 	if err := json.Unmarshal(data, &resp); err != nil {
-		return nil, nil, nil, fmt.Errorf("failed to unmarshal RPC response: %w", err)
+		return zeroResult, nil, nil, fmt.Errorf("failed to unmarshal RPC response: %w", err)
 	}
 
 	// Check for JSON-RPC level error
 	if resp.Error != nil {
-		return nil, resp.ID, resp.Error, nil // Return RPC error, no result expected
+		return zeroResult, resp.ID, resp.Error, nil // Return RPC error, no result expected
 	}
 
 	// Check if the result field is present
 	if len(resp.Result) == 0 || string(resp.Result) == "null" {
-		return nil, resp.ID, nil, fmt.Errorf("received response with missing or null result field for method %s", MethodGetPrompt)
+		return zeroResult, resp.ID, nil, fmt.Errorf("received response with missing or null result field for method %s", MethodGetPrompt)
 	}
 
 	// Unmarshal the actual result from the Result field
 	var result GetPromptResult
 	if err := json.Unmarshal(resp.Result, &result); err != nil {
-		return nil, resp.ID, nil, fmt.Errorf("failed to unmarshal GetPromptResult from response result: %w", err)
+		return zeroResult, resp.ID, nil, fmt.Errorf("failed to unmarshal GetPromptResult from response result: %w", err)
 	}
 
 	// The caller needs to process result.Messages[...].Content further
-	return &result, resp.ID, nil, nil
+	return result, resp.ID, nil, nil
 }
 
 // ============================================
@@ -202,10 +204,11 @@ func UnmarshalGetPromptResult(data []byte) (*GetPromptResult, RequestID, *RPCErr
 // UnmarshalListPromptsRequest parses the parameters from a JSON-RPC request for the prompts/list method.
 // Intended for use by the server.
 // It unmarshals the entire request and specifically parses the `params` field into ListPromptsParams.
-// It returns the parsed parameters, the request ID, any RPC error encountered during parsing, and a general parsing error.
-func UnmarshalListPromptsRequest(payload []byte, logger *utils.Logger) (*ListPromptsParams, RequestID, *RPCError, error) {
+// It returns the parsed parameters by value, the request ID, any RPC error encountered during parsing, and a general parsing error.
+func UnmarshalListPromptsRequest(payload []byte, logger *utils.Logger) (ListPromptsParams, RequestID, *RPCError, error) {
+	var zeroParams ListPromptsParams
 	if logger == nil {
-		return nil, nil, nil, fmt.Errorf("logger cannot be nil")
+		return zeroParams, nil, nil, fmt.Errorf("logger cannot be nil")
 	}
 
 	var req RPCRequest
@@ -213,7 +216,7 @@ func UnmarshalListPromptsRequest(payload []byte, logger *utils.Logger) (*ListPro
 		err = fmt.Errorf("failed to unmarshal base list prompts request: %w", err)
 		logger.Println("ERROR", err.Error())
 		rpcErr := NewRPCError(ErrorCodeParseError, err.Error(), nil)
-		return nil, nil, rpcErr, err
+		return zeroParams, nil, rpcErr, err
 	}
 
 	// Params are optional for prompts/list (cursor)
@@ -224,7 +227,7 @@ func UnmarshalListPromptsRequest(payload []byte, logger *utils.Logger) (*ListPro
 			err := fmt.Errorf("invalid type for params field: expected JSON object or null, got %T", req.Params)
 			logger.Println("ERROR", err.Error())
 			rpcErr := NewRPCError(ErrorCodeInvalidRequest, "Invalid params field type", err.Error())
-			return nil, req.ID, rpcErr, err
+			return zeroParams, req.ID, rpcErr, err
 		}
 
 		// Only unmarshal if params is not null and not empty
@@ -233,23 +236,24 @@ func UnmarshalListPromptsRequest(payload []byte, logger *utils.Logger) (*ListPro
 				err = fmt.Errorf("failed to unmarshal ListPromptsParams from request params: %w", err)
 				logger.Println("ERROR", err.Error())
 				rpcErr := NewRPCError(ErrorCodeInvalidParams, "Invalid parameters for prompts/list", err.Error())
-				return nil, req.ID, rpcErr, err
+				return zeroParams, req.ID, rpcErr, err
 			}
 		}
 	}
 	// If req.Params was nil or null, params remains the zero value, which is valid.
 
 	// No specific validation needed for ListPromptsParams fields (cursor is optional)
-	return &params, req.ID, nil, nil
+	return params, req.ID, nil, nil
 }
 
 // UnmarshalGetPromptRequest parses the parameters from a JSON-RPC request for the prompts/get method.
 // Intended for use by the server.
 // It unmarshals the entire request and specifically parses the `params` field into GetPromptParams.
-// It returns the parsed parameters, the request ID, any RPC error encountered during parsing, and a general parsing error.
-func UnmarshalGetPromptRequest(payload []byte, logger *utils.Logger) (*GetPromptParams, RequestID, *RPCError, error) {
+// It returns the parsed parameters by value, the request ID, any RPC error encountered during parsing, and a general parsing error.
+func UnmarshalGetPromptRequest(payload []byte, logger *utils.Logger) (GetPromptParams, RequestID, *RPCError, error) {
+	var zeroParams GetPromptParams
 	if logger == nil {
-		return nil, nil, nil, fmt.Errorf("logger cannot be nil")
+		return zeroParams, nil, nil, fmt.Errorf("logger cannot be nil")
 	}
 
 	var req RPCRequest
@@ -257,7 +261,7 @@ func UnmarshalGetPromptRequest(payload []byte, logger *utils.Logger) (*GetPrompt
 		err = fmt.Errorf("failed to unmarshal base get prompt request: %w", err)
 		logger.Println("ERROR", err.Error())
 		rpcErr := NewRPCError(ErrorCodeParseError, err.Error(), nil)
-		return nil, nil, rpcErr, err
+		return zeroParams, nil, rpcErr, err
 	}
 
 	// Now, unmarshal the Params field specifically into GetPromptParams
@@ -269,7 +273,7 @@ func UnmarshalGetPromptRequest(payload []byte, logger *utils.Logger) (*GetPrompt
 		err := fmt.Errorf("invalid type for params field: expected JSON object, got %T", req.Params)
 		logger.Println("ERROR", err.Error())
 		rpcErr := NewRPCError(ErrorCodeInvalidRequest, "Invalid params field type", err.Error())
-		return nil, req.ID, rpcErr, err
+		return zeroParams, req.ID, rpcErr, err
 	}
 
 	// For GetPrompt, the 'params' object itself is required and must contain 'name'.
@@ -277,7 +281,7 @@ func UnmarshalGetPromptRequest(payload []byte, logger *utils.Logger) (*GetPrompt
 		err := fmt.Errorf("missing required params field for method %s", MethodGetPrompt)
 		logger.Println("ERROR", err.Error())
 		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Missing required parameters object", nil)
-		return nil, req.ID, rpcErr, err
+		return zeroParams, req.ID, rpcErr, err
 	}
 
 	// Attempt to unmarshal the params
@@ -285,7 +289,7 @@ func UnmarshalGetPromptRequest(payload []byte, logger *utils.Logger) (*GetPrompt
 		err = fmt.Errorf("failed to unmarshal GetPromptParams from request params: %w", err)
 		logger.Println("ERROR", err.Error())
 		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Invalid parameters for prompts/get", err.Error())
-		return nil, req.ID, rpcErr, err
+		return zeroParams, req.ID, rpcErr, err
 	}
 
 	// Validate required fields within params (e.g., Name must not be empty)
@@ -293,12 +297,12 @@ func UnmarshalGetPromptRequest(payload []byte, logger *utils.Logger) (*GetPrompt
 		err := fmt.Errorf("missing required 'name' field in params for method %s", MethodGetPrompt)
 		logger.Println("ERROR", err.Error())
 		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Missing required 'name' parameter", nil)
-		return nil, req.ID, rpcErr, err
+		return zeroParams, req.ID, rpcErr, err
 	}
 	// Arguments are optional, no validation needed unless specific constraints exist.
 
 	// Successfully parsed and validated params
-	return &params, req.ID, nil, nil
+	return params, req.ID, nil, nil
 }
 
 // ============================================
