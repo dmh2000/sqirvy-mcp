@@ -79,13 +79,13 @@ func TestUnmarshalListToolsResult(t *testing.T) {
 		{
 			name:       "valid response, string id",
 			data:       `{"jsonrpc":"2.0","result":` + string(resultJSON) + `,"id":"tool-res-1"}`,
-			wantResult: &sampleResult,
+			wantResult: sampleResult, // Use value
 			wantID:     "tool-res-1",
 		},
 		{
 			name:       "valid response, int id",
 			data:       `{"jsonrpc":"2.0","result":` + string(resultJSON) + `,"id":310}`,
-			wantResult: &sampleResult,
+			wantResult: sampleResult, // Use value
 			wantID:     float64(310),
 		},
 		{
@@ -96,21 +96,25 @@ func TestUnmarshalListToolsResult(t *testing.T) {
 				Code:    -32602,
 				Message: "Invalid params",
 			},
+			wantResult: zeroListToolsResult, // Expect zero value on RPC error
 		},
 		{
-			name:     "malformed json",
-			data:     `{"jsonrpc":"2.0", "result": {`,
-			parseErr: true,
+			name:       "malformed json",
+			data:       `{"jsonrpc":"2.0", "result": {`,
+			parseErr:   true,
+			wantResult: zeroListToolsResult, // Expect zero value on parse error
 		},
 		{
-			name:     "missing result field",
-			data:     `{"jsonrpc":"2.0","id":312}`,
-			parseErr: true,
+			name:       "missing result field",
+			data:       `{"jsonrpc":"2.0","id":312}`,
+			parseErr:   true,
+			wantResult: zeroListToolsResult, // Expect zero value on parse error
 		},
 		{
-			name:     "null result field",
-			data:     `{"jsonrpc":"2.0","result":null,"id":313}`,
-			parseErr: true,
+			name:       "null result field",
+			data:       `{"jsonrpc":"2.0","result":null,"id":313}`,
+			parseErr:   true,
+			wantResult: zeroListToolsResult, // Expect zero value on parse error
 		},
 	}
 
@@ -132,26 +136,34 @@ func TestUnmarshalListToolsResult(t *testing.T) {
 				t.Errorf("UnmarshalListToolsResult() gotID = %v, want %v", gotID, tt.wantID)
 			}
 
-			// Compare marshaled JSON of results instead of DeepEqual on structs
-			// due to potential type inconsistencies in nested maps after unmarshaling.
-			gotJSON, err := json.Marshal(gotResult)
-			if err != nil {
-				t.Fatalf("Failed to marshal gotResult: %v", err)
-			}
-			wantJSON, err := json.Marshal(tt.wantResult)
-			if err != nil {
-				t.Fatalf("Failed to marshal wantResult: %v", err)
-			}
+			// Only compare results if no error was expected
+			if tt.wantErr == nil && !tt.parseErr {
+				// Compare marshaled JSON of results instead of DeepEqual on structs
+				// due to potential type inconsistencies in nested maps after unmarshaling.
+				gotJSON, err := json.Marshal(gotResult)
+				if err != nil {
+					t.Fatalf("Failed to marshal gotResult: %v", err)
+				}
+				wantJSON, err := json.Marshal(tt.wantResult)
+				if err != nil {
+					t.Fatalf("Failed to marshal wantResult: %v", err)
+				}
 
-			equal, err := jsonEqual(gotJSON, wantJSON)
-			if err != nil {
-				t.Fatalf("Error comparing result JSON: %v", err)
-			}
-			if !equal {
-				// Indent for readability in error message
-				gotJSONIndent, _ := json.MarshalIndent(gotResult, "", "  ")
-				wantJSONIndent, _ := json.MarshalIndent(tt.wantResult, "", "  ")
-				t.Errorf("UnmarshalListToolsResult() gotResult JSON = \n%s\nwant JSON = \n%s", string(gotJSONIndent), string(wantJSONIndent))
+				equal, err := jsonEqual(gotJSON, wantJSON)
+				if err != nil {
+					t.Fatalf("Error comparing result JSON: %v", err)
+				}
+				if !equal {
+					// Indent for readability in error message
+					gotJSONIndent, _ := json.MarshalIndent(gotResult, "", "  ")
+					wantJSONIndent, _ := json.MarshalIndent(tt.wantResult, "", "  ")
+					t.Errorf("UnmarshalListToolsResult() gotResult JSON = \n%s\nwant JSON = \n%s", string(gotJSONIndent), string(wantJSONIndent))
+				}
+			} else {
+				// If an error was expected, ensure the returned result is the zero value
+				if !reflect.DeepEqual(gotResult, zeroListToolsResult) {
+					t.Errorf("UnmarshalListToolsResult() expected zero result on error, but got = %+v", gotResult)
+				}
 			}
 		})
 	}
