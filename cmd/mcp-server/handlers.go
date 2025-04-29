@@ -201,7 +201,7 @@ func (s *Server) handleListPrompts(id mcp.RequestID) ([]byte, error) {
 	}
 
 	p := []mcp.Prompt{sqirvyQueryPrompt}
-	r := mcp.NewListPromptResult(p)
+	r := mcp.NewListPromptsResult(p)
 	return s.marshalResponse(id, r)
 }
 
