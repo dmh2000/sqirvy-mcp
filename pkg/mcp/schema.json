@@ -200,7 +200,7 @@
                     "$ref": "#/definitions/ListResourcesRequest"
                 },
                 {
-                    "$ref": "#/definitions/ListResourcesTemplatessRequest"
+                    "$ref": "#/definitions/ListResourcesTemplatesRequest"
                 },
                 {
                     "$ref": "#/definitions/ReadResourceRequest"
@@ -871,7 +871,7 @@
             ],
             "type": "object"
         },
-        "ListResourcesTemplatessRequest": {
+        "ListResourcesTemplatesRequest": {
             "description": "Sent from the client to request a list of resource templates the server has.",
             "properties": {
                 "method": {
@@ -893,7 +893,7 @@
             ],
             "type": "object"
         },
-        "ListResourcesTemplatessResult": {
+        "ListResourcesTemplatesResult": {
             "description": "The server's response to a resources/templates/list request from the client.",
             "properties": {
                 "_meta": {
@@ -1843,7 +1843,7 @@
                     "$ref": "#/definitions/ListResourcesResult"
                 },
                 {
-                    "$ref": "#/definitions/ListResourcesTemplatessResult"
+                    "$ref": "#/definitions/ListResourcesTemplatesResult"
                 },
                 {
                     "$ref": "#/definitions/ReadResourceResult"

@@ -54,7 +54,7 @@ func TestMarshalListResourcesRequest(t *testing.T) {
 	}
 }
 
-func TestMarshalListResourcesTemplatessRequest(t *testing.T) {
+func TestMarshalListResourcesTemplatesRequest(t *testing.T) {
 	tests := []struct {
 		name    string
 		id      RequestID
@@ -86,7 +86,7 @@ func TestMarshalListResourcesTemplatessRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := MarshalListResourcesTemplatesResult(tt.id, tt.params)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("MarshalListResourcesTemplatessRequest() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("MarshalListResourcesTemplatesRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if err == nil {
@@ -95,30 +95,30 @@ func TestMarshalListResourcesTemplatessRequest(t *testing.T) {
 					t.Fatalf("Error comparing JSON: %v", err)
 				}
 				if !equal {
-					t.Errorf("MarshalListResourcesTemplatessRequest() got = %s, want %s", got, tt.want)
+					t.Errorf("MarshalListResourcesTemplatesRequest() got = %s, want %s", got, tt.want)
 				}
 			}
 		})
 	}
 }
 
-func TestUnmarshalListResourcesTemplatessResponse(t *testing.T) {
+func TestUnmarshalListResourcesTemplatesResponse(t *testing.T) {
 	sampleTemplate := ResourcesTemplates{
 		Name:        "random_data",
 		URITemplate: "data://random_data?{length}",
 		Description: "Generates random data",
 		MimeType:    "text/plain",
 	}
-	sampleResult := ListResourcesTemplatessResult{
-		ResourcesTemplatess: []ResourcesTemplates{sampleTemplate},
-		NextCursor:          "next-tmpl-page",
+	sampleResult := ListResourcesTemplatesResult{
+		ResourcesTemplates: []ResourcesTemplates{sampleTemplate},
+		NextCursor:         "next-tmpl-page",
 	}
 	resultJSON, _ := json.Marshal(sampleResult)
 
 	tests := []struct {
 		name       string
 		data       string
-		wantResult *ListResourcesTemplatessResult
+		wantResult *ListResourcesTemplatesResult
 		wantID     RequestID
 		wantErr    *RPCError
 		parseErr   bool
@@ -163,23 +163,23 @@ func TestUnmarshalListResourcesTemplatessResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResult, gotID, gotErr, parseErr := UnmarshalListResourcesTemplatessResult([]byte(tt.data))
+			gotResult, gotID, gotErr, parseErr := UnmarshalListResourcesTemplatesResult([]byte(tt.data))
 
 			if (parseErr != nil) != tt.parseErr {
-				t.Fatalf("UnmarshalListResourcesTemplatessResultrseErr = %v, want parseErr %v", parseErr, tt.parseErr)
+				t.Fatalf("UnmarshalListResourcesTemplatesResultrseErr = %v, want parseErr %v", parseErr, tt.parseErr)
 			}
 			if tt.parseErr {
 				return
 			}
 
 			if !reflect.DeepEqual(gotErr, tt.wantErr) {
-				t.Errorf("UnmarshalListResourcesTemplatessResponse() gotErr = %v, want %v", gotErr, tt.wantErr)
+				t.Errorf("UnmarshalListResourcesTemplatesResponse() gotErr = %v, want %v", gotErr, tt.wantErr)
 			}
 			if !reflect.DeepEqual(gotID, tt.wantID) {
-				t.Errorf("UnmarshalListResourcesTemplatessResponse() gotID = %v, want %v", gotID, tt.wantID)
+				t.Errorf("UnmarshalListResourcesTemplatesResponse() gotID = %v, want %v", gotID, tt.wantID)
 			}
 			if !reflect.DeepEqual(gotResult, tt.wantResult) {
-				t.Errorf("UnmarshalListResourcesTemplatessResponse() gotResult = %+v, want %+v", gotResult, tt.wantResult)
+				t.Errorf("UnmarshalListResourcesTemplatesResponse() gotResult = %+v, want %+v", gotResult, tt.wantResult)
 			}
 		})
 	}

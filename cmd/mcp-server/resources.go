@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -26,30 +25,12 @@ var exampleFileResource mcp.Resource = mcp.Resource{
 func (s *Server) handleReadResource(id mcp.RequestID, payload []byte) ([]byte, error) {
 	s.logger.Printf("DEBUG", "Handle  : resources/read request (ID: %v)", id)
 
-	req, id, rpcErr, err := mcp.UnmarshalReadResourceRequest(id, payload, s.logger)
+	params, id, rpcErr, err := mcp.UnmarshalReadResourceRequest(payload, s.logger)
 	if err != nil {
 		return nil, err
 	}
 
 	if rpcErr != nil {
-		return s.marshalErrorResponse(id, rpcErr)
-	}
-
-	// Marshal the params interface{} back to bytes
-	paramsBytes, err := json.Marshal(req.Params)
-	if err != nil {
-		err = fmt.Errorf("failed to re-marshal read resource params: %w", err)
-		s.logger.Println("DEBUG", err.Error())
-		rpcErr := mcp.NewRPCError(mcp.ErrorCodeInvalidParams, err.Error(), nil) // InvalidParams as structure was likely wrong
-		return s.marshalErrorResponse(id, rpcErr)
-	}
-
-	// Now unmarshal the bytes into the specific params struct
-	var params mcp.ReadResourceParams
-	if err := json.Unmarshal(paramsBytes, &params); err != nil {
-		err = fmt.Errorf("failed to unmarshal specific read resource params: %w", err)
-		s.logger.Println("DEBUG", err.Error())
-		rpcErr := mcp.NewRPCError(mcp.ErrorCodeInvalidParams, err.Error(), nil) // InvalidParams as content was wrong
 		return s.marshalErrorResponse(id, rpcErr)
 	}
 
@@ -71,8 +52,7 @@ func (s *Server) handleReadResource(id mcp.RequestID, payload []byte) ([]byte, e
 	case "data":
 		if parsedURI.Host == "random_data" {
 			// Delegate to the specific handler in templates.go (which uses resources.RandomData)
-			// Note: handleRandomDataResource already marshals the full response.
-			return s.handleRandomDataResource(id, params, parsedURI)
+			return s.handleRandomDataResource(id, *params, parsedURI)
 		}
 		resourceErr = fmt.Errorf("unsupported data URI host: %s", parsedURI.Host)
 

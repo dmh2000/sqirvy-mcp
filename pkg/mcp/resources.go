@@ -14,9 +14,9 @@ import (
 
 // Method names for resource operations.
 const (
-	MethodListResources           = "resources/list"
-	MethodReadResource            = "resources/read"
-	MethodListResourcesTemplatess = "resources/templates/list" // Added for resource templates
+	MethodListResources          = "resources/list"
+	MethodReadResource           = "resources/read"
+	MethodListResourcesTemplates = "resources/templates/list" // Added for resource templates
 )
 
 // Resource represents a known resource the server can read.
@@ -63,20 +63,20 @@ type ListResourcesResult struct {
 	Resources []Resource `json:"resources"`
 }
 
-// ListResourcesTemplatessParams defines the parameters for a "resources/templates/list" request.
-type ListResourcesTemplatessParams struct {
+// ListResourcesTemplatesParams defines the parameters for a "resources/templates/list" request.
+type ListResourcesTemplatesParams struct {
 	// Cursor is an opaque token for pagination.
 	Cursor string `json:"cursor,omitempty"`
 }
 
-// ListResourcesTemplatessResult defines the result structure for a "resources/templates/list" response.
-type ListResourcesTemplatessResult struct {
+// ListResourcesTemplatesResult defines the result structure for a "resources/templates/list" response.
+type ListResourcesTemplatesResult struct {
 	// Meta contains reserved protocol metadata.
 	Meta map[string]interface{} `json:"_meta,omitempty"`
 	// NextCursor is an opaque token for the next page of results.
 	NextCursor string `json:"nextCursor,omitempty"`
-	// ResourcesTemplatess is the list of resource templates found.
-	ResourcesTemplatess []ResourcesTemplates `json:"resourceTemplates"`
+	// ResourcesTemplates is the list of resource templates found.
+	ResourcesTemplates []ResourcesTemplates `json:"resourceTemplates"`
 }
 
 // ReadResourceParams defines the parameters for a "resources/read" request.
@@ -208,11 +208,11 @@ func UnmarshalListResourcesRequest(id RequestID, payload []byte, logger *utils.L
 // RESOURCES TEMPLATES
 // ============================================
 
-// UnmarshalListResourcesTemplatessResult parses a JSON-RPC response for a resources/templates/list request.
+// UnmarshalListResourcesTemplatesResult parses a JSON-RPC response for a resources/templates/list request.
 // Intended for use by the client.
 // It expects the standard JSON-RPC response format with the result nested in the "result" field.
 // It returns the result, the response ID, any RPC error, and a general parsing error.
-func UnmarshalListResourcesTemplatessResult(data []byte) (*ListResourcesTemplatessResult, RequestID, *RPCError, error) {
+func UnmarshalListResourcesTemplatesResult(data []byte) (*ListResourcesTemplatesResult, RequestID, *RPCError, error) {
 	var resp RPCResponse
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to unmarshal RPC response: %w", err)
@@ -223,40 +223,20 @@ func UnmarshalListResourcesTemplatessResult(data []byte) (*ListResourcesTemplate
 	}
 
 	if len(resp.Result) == 0 || string(resp.Result) == "null" {
-		return nil, resp.ID, nil, fmt.Errorf("received response with missing or null result field for method %s", MethodListResourcesTemplatess)
+		return nil, resp.ID, nil, fmt.Errorf("received response with missing or null result field for method %s", MethodListResourcesTemplates)
 	}
 
-	var result ListResourcesTemplatessResult
+	var result ListResourcesTemplatesResult
 	if err := json.Unmarshal(resp.Result, &result); err != nil {
-		return nil, resp.ID, nil, fmt.Errorf("failed to unmarshal ListResourcesTemplatessResult from response result: %w", err)
+		return nil, resp.ID, nil, fmt.Errorf("failed to unmarshal ListResourcesTemplatesResult from response result: %w", err)
 	}
 
 	return &result, resp.ID, nil, nil
 }
 
-// MarshalReadResourcesTemplateRequest creates a JSON-RPC request for the resources/read method
-// (used here potentially for reading a resource described by a template, although the method name is generic).
-// Intended for use by the client.
-// The id can be a string or an integer.
-func MarshalReadResourcesTemplateRequest(id RequestID, params ReadResourceParams) ([]byte, error) {
-	req := RPCRequest{
-		JSONRPC: JSONRPCVersion,
-		Method:  MethodReadResource, // Note: Uses the standard read method
-		Params:  params,
-		ID:      id,
-	}
-	return json.Marshal(req)
-}
-
-// MarshalListResourcesTemplatessResult creates a JSON-RPC request for the resources/templates/list method.
+// MarshalListResourcesTemplatesResult creates a JSON-RPC request for the resources/templates/list method.
 // Intended for use by the server to marshal the *request* parameters (likely a mistake in original code, should marshal a *result*).
-// If this is intended to marshal the *result* from the server, it should accept ListResourcesTemplatessResult.
-// If it's intended to marshal the *request* from the client, the function name is misleading and duplicates client logic.
-// Assuming it's meant to marshal the *request* from the client side based on its structure:
-func MarshalListResourcesTemplatessResult(id RequestID, params *ListResourcesTemplatessParams) ([]byte, error) {
-	// TODO: Review function purpose. Name suggests marshaling a result (server), but implementation marshals a request (client).
-	// If server-side result marshaling: func MarshalListResourcesTemplatessResult(id RequestID, result ListResourcesTemplatessResult, logger *utils.Logger) ([]byte, error)
-	// If client-side request marshaling: func MarshalListResourcesTemplatessRequest(id RequestID, params *ListResourcesTemplatessParams) ([]byte, error)
+func MarshalListResourcesTemplatesResult(id RequestID, params *ListResourcesTemplatesParams) ([]byte, error) {
 
 	var p interface{}
 	if params != nil {
@@ -267,32 +247,11 @@ func MarshalListResourcesTemplatessResult(id RequestID, params *ListResourcesTem
 
 	req := RPCRequest{
 		JSONRPC: JSONRPCVersion,
-		Method:  MethodListResourcesTemplatess,
+		Method:  MethodListResourcesTemplates,
 		Params:  p,
 		ID:      id,
 	}
 	return json.Marshal(req)
-}
-
-// UnmarshalReadResourcesTemplateRequest parses the parameters from a JSON-RPC request potentially related to resource templates.
-// Intended for use by the server.
-// Note: This function currently only unmarshals the base RPCRequest structure.
-// Further unmarshaling of the `Params` field into specific template-related parameters might be needed.
-// It returns the base request object, the request ID, any RPC error encountered during base parsing, and a general parsing error.
-func UnmarshalReadResourcesTemplateRequest(id RequestID, payload []byte, logger *utils.Logger) (*RPCRequest, RequestID, *RPCError, error) {
-	var req RPCRequest
-	if err := json.Unmarshal(payload, &req); err != nil {
-		// Assuming this is intended to parse a request that might use ReadResourceParams for a template URI
-		err = fmt.Errorf("failed to unmarshal base read resource (template) request: %w", err)
-		logger.Println("ERROR", err.Error())
-		rpcErr := NewRPCError(ErrorCodeParseError, err.Error(), nil)
-		return nil, id, rpcErr, err
-	}
-	// TODO: Consider unmarshaling req.Params into ReadResourceParams if needed by the server handler.
-	// var params ReadResourceParams
-	// if err := json.Unmarshal(req.Params.(json.RawMessage), &params); err != nil { ... }
-
-	return &req, id, nil, nil
 }
 
 // ============================================
@@ -314,28 +273,59 @@ func MarshalReadResourcesRequest(id RequestID, params ReadResourceParams) ([]byt
 
 // UnmarshalReadResourceRequest parses the parameters from a JSON-RPC request for the resources/read method.
 // Intended for use by the server.
-// Note: This function currently only unmarshals the base RPCRequest structure.
-// Further unmarshaling of the `Params` field into `ReadResourceParams` is required
-// for the server to know which resource URI to read.
-// It returns the base request object, the request ID, any RPC error encountered during base parsing, and a general parsing error.
-func UnmarshalReadResourceRequest(id RequestID, payload []byte, logger *utils.Logger) (*RPCRequest, RequestID, *RPCError, error) {
+// It unmarshals the entire request and specifically parses the `params` field into ReadResourceParams.
+// It returns the parsed parameters, the request ID, any RPC error encountered during parsing, and a general parsing error.
+func UnmarshalReadResourceRequest(payload []byte, logger *utils.Logger) (*ReadResourceParams, RequestID, *RPCError, error) {
 	var req RPCRequest
 	if err := json.Unmarshal(payload, &req); err != nil {
 		err = fmt.Errorf("failed to unmarshal base read resource request: %w", err)
 		logger.Println("ERROR", err.Error())
 		rpcErr := NewRPCError(ErrorCodeParseError, err.Error(), nil)
-		return nil, id, rpcErr, err
+		// Return nil params, nil ID (as we couldn't parse it), the RPC error, and the Go error
+		return nil, nil, rpcErr, err
 	}
-	// IMPORTANT: Server handler MUST unmarshal req.Params into ReadResourceParams
-	// var params ReadResourceParams
-	// if err := json.Unmarshal(req.Params.(json.RawMessage), &params); err != nil {
-	//     // Handle error: Invalid Params
-	//     rpcErr := NewRPCError(ErrorCodeInvalidParams, "Failed to parse ReadResourceParams", err.Error())
-	//     // ... return error response ...
-	// }
-	// // Use params.URI
 
-	return &req, id, nil, nil
+	// Now, unmarshal the Params field specifically into ReadResourceParams
+	var params ReadResourceParams
+
+	// Handle cases where params might be missing or explicitly null in the JSON
+	rawParams, ok := req.Params.(json.RawMessage)
+	if !ok && req.Params != nil {
+		// This case means Params was not a JSON object/array/null, which is invalid for this method.
+		err := fmt.Errorf("invalid type for params field: expected JSON object, got %T", req.Params)
+		logger.Println("ERROR", err.Error())
+		// Use InvalidRequest as the structure itself is wrong if params isn't marshalable
+		rpcErr := NewRPCError(ErrorCodeInvalidRequest, "Invalid params field type", err.Error())
+		return nil, req.ID, rpcErr, err
+	}
+
+	// For ReadResource, the 'params' object itself is required and must contain 'uri'.
+	if len(rawParams) == 0 || string(rawParams) == "null" {
+		err := fmt.Errorf("missing required params field for method %s", MethodReadResource)
+		logger.Println("ERROR", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Missing required parameters object", nil)
+		return nil, req.ID, rpcErr, err
+	}
+
+	// Attempt to unmarshal the params
+	if err := json.Unmarshal(rawParams, &params); err != nil {
+		err = fmt.Errorf("failed to unmarshal ReadResourceParams from request params: %w", err)
+		logger.Println("ERROR", err.Error())
+		// Use InvalidParams error code as the request structure was valid, but params content wasn't
+		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Invalid parameters for resources/read", err.Error())
+		return nil, req.ID, rpcErr, err
+	}
+
+	// Validate required fields within params (e.g., URI must not be empty)
+	if params.URI == "" {
+		err := fmt.Errorf("missing required 'uri' field in params for method %s", MethodReadResource)
+		logger.Println("ERROR", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Missing required 'uri' parameter", nil)
+		return nil, req.ID, rpcErr, err
+	}
+
+	// Successfully parsed and validated params
+	return &params, req.ID, nil, nil
 }
 
 // MarshalReadResourceResult creates a JSON-RPC response containing the result of a resources/read request.

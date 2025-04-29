@@ -260,15 +260,15 @@ func (s *Server) handleListResources(id mcp.RequestID) ([]byte, error) {
 	return result, nil
 }
 
-// handleListResourcesTemplatess handles the "resources/templates/list" request.
-func (s *Server) handleListResourcesTemplatess(id mcp.RequestID) ([]byte, error) {
+// handleListResourcesTemplates handles the "resources/templates/list" request.
+func (s *Server) handleListResourcesTemplates(id mcp.RequestID) ([]byte, error) {
 	s.logger.Printf("DEBUG", "Handle  : resources/templates/list request (ID: %v)", id)
 
 	// TODO: Add other resource templates here if needed
 	templates := []mcp.ResourcesTemplates{RandomDataTemplate}
 
-	result := mcp.ListResourcesTemplatessResult{
-		ResourcesTemplatess: templates,
+	result := mcp.ListResourcesTemplatesResult{
+		ResourcesTemplates: templates,
 		// NextCursor: "", // Implement pagination if needed
 	}
 	return s.marshalResponse(id, result)
