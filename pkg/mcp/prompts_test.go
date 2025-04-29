@@ -255,34 +255,34 @@ func TestUnmarshalGetPromptResponse(t *testing.T) {
 			gotResult, gotID, gotErr, parseErr := UnmarshalGetPromptResult([]byte(tt.data))
 
 			if (parseErr != nil) != tt.parseErr {
-				t.Fatalf("UnmarshalGetPromptResponse() parseErr = %v, want parseErr %v", parseErr, tt.parseErr)
+				t.Fatalf("UnmarshalGetPromptResult() parseErr = %v, want parseErr %v", parseErr, tt.parseErr)
 			}
 			if tt.parseErr {
 				return
 			}
 
 			if !reflect.DeepEqual(gotErr, tt.wantErr) {
-				t.Errorf("UnmarshalGetPromptResponse() gotErr = %v, want %v", gotErr, tt.wantErr)
+				t.Errorf("UnmarshalGetPromptResult() gotErr = %v, want %v", gotErr, tt.wantErr)
 			}
 			if !reflect.DeepEqual(gotID, tt.wantID) {
-				t.Errorf("UnmarshalGetPromptResponse() gotID = %v, want %v", gotID, tt.wantID)
+				t.Errorf("UnmarshalGetPromptResult() gotID = %v, want %v", gotID, tt.wantID)
 			}
 
 			// Compare GetPromptResult, focusing on the raw Content within Messages
 			// Compare values directly
 			if len(gotResult.Messages) != len(tt.wantResult.Messages) {
-				t.Errorf("UnmarshalGetPromptResponse() len(Messages) got = %d, want %d", len(gotResult.Messages), len(tt.wantResult.Messages))
+				t.Errorf("UnmarshalGetPromptResult() len(Messages) got = %d, want %d", len(gotResult.Messages), len(tt.wantResult.Messages))
 			} else {
 				for i := range gotResult.Messages {
 					if i >= len(tt.wantResult.Messages) { // Prevent index out of bounds if lengths differ (already checked, but defensive)
 						break
 					}
 						if gotResult.Messages[i].Role != tt.wantResult.Messages[i].Role {
-							t.Errorf("UnmarshalGetPromptResponse() Messages[%d].Role got = %s, want %s", i, gotResult.Messages[i].Role, tt.wantResult.Messages[i].Role)
+							t.Errorf("UnmarshalGetPromptResult() Messages[%d].Role got = %s, want %s", i, gotResult.Messages[i].Role, tt.wantResult.Messages[i].Role)
 						}
 						// Compare raw JSON bytes for content
 						if !reflect.DeepEqual(gotResult.Messages[i].Content, tt.wantResult.Messages[i].Content) {
-							t.Errorf("UnmarshalGetPromptResponse() Messages[%d].Content got = %s, want %s", i, gotResult.Messages[i].Content, tt.wantResult.Messages[i].Content)
+							t.Errorf("UnmarshalGetPromptResult() Messages[%d].Content got = %s, want %s", i, gotResult.Messages[i].Content, tt.wantResult.Messages[i].Content)
 						}
 					}
 				}
