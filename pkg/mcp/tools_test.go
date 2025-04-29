@@ -68,10 +68,13 @@ func TestUnmarshalListToolsResult(t *testing.T) {
 	}
 	resultJSON, _ := json.Marshal(sampleResult)
 
+	// Define the zero value for ListToolsResult to use in error cases
+	var zeroListToolsResult ListToolsResult
+
 	tests := []struct {
 		name       string
 		data       string
-		wantResult *ListToolsResult
+		wantResult ListToolsResult // Value type
 		wantID     RequestID
 		wantErr    *RPCError
 		parseErr   bool
