@@ -185,23 +185,101 @@ func MarshalListResourcesResult(id RequestID, resourcesList []Resource, cursor s
 
 // UnmarshalListResourcesRequest parses the parameters from a JSON-RPC request for the resources/list method.
 // Intended for use by the server.
-// Note: This function currently only unmarshals the base RPCRequest structure.
-// Further unmarshaling of the `Params` field into `ListResourcesParams` would be needed
-// if the server needs to access specific parameters like the cursor.
-// It returns the base request object, the request ID, any RPC error encountered during base parsing, and a general parsing error.
-func UnmarshalListResourcesRequest(id RequestID, payload []byte, logger *utils.Logger) (*RPCRequest, RequestID, *RPCError, error) {
+// It properly validates the request structure and parameters, and returns:
+// - The parsed parameters (if successful)
+// - The request ID from the payload (not the passed-in ID)
+// - Any RPC error encountered during validation
+// - A general parsing error
+func UnmarshalListResourcesRequest(payload []byte, logger *utils.Logger) (*ListResourcesParams, RequestID, *RPCError, error) {
+	// First, unmarshal the base request structure
 	var req RPCRequest
 	if err := json.Unmarshal(payload, &req); err != nil {
 		err = fmt.Errorf("failed to unmarshal base list resources request: %w", err)
 		logger.Println("ERROR", err.Error())
 		rpcErr := NewRPCError(ErrorCodeParseError, err.Error(), nil)
-		return nil, id, rpcErr, err
+		return nil, nil, rpcErr, err
 	}
-	// TODO: Consider unmarshaling req.Params into ListResourcesParams if needed by the server handler.
-	// var params ListResourcesParams
-	// if err := json.Unmarshal(req.Params.(json.RawMessage), &params); err != nil { ... }
 
-	return &req, id, nil, nil
+	// Verify the method is correct
+	if req.Method != MethodListResources {
+		err := fmt.Errorf("incorrect method in request: got %s, expected %s", req.Method, MethodListResources)
+		logger.Println("ERROR", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidRequest, err.Error(), nil)
+		return nil, req.ID, rpcErr, err
+	}
+
+	// Verify JSONRPC version
+	if req.JSONRPC != JSONRPCVersion {
+		err := fmt.Errorf("incorrect JSON-RPC version: got %s, expected %s", req.JSONRPC, JSONRPCVersion)
+		logger.Println("ERROR", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidRequest, err.Error(), nil)
+		return nil, req.ID, rpcErr, err
+	}
+
+	// Now, handle the params field
+	var params ListResourcesParams
+
+	// If params is nil or explicitly null in the JSON, use empty params
+	if req.Params == nil {
+		return &ListResourcesParams{}, req.ID, nil, nil
+	}
+
+	// Try to convert params to json.RawMessage for unmarshaling
+	var rawParams json.RawMessage
+	var ok bool
+
+	// Handle different types of params
+	switch p := req.Params.(type) {
+	case json.RawMessage:
+		rawParams = p
+	case map[string]interface{}:
+		// If it's already a map, marshal it back to JSON
+		var err error
+		rawParams, err = json.Marshal(p)
+		if err != nil {
+			err = fmt.Errorf("failed to re-marshal params map: %w", err)
+			logger.Println("ERROR", err.Error())
+			rpcErr := NewRPCError(ErrorCodeInternalError, "Internal error processing params", nil)
+			return nil, req.ID, rpcErr, err
+		}
+	case string:
+		// If it's a string (shouldn't happen for this method), treat as error
+		err := fmt.Errorf("invalid params type: string")
+		logger.Println("ERROR", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Params must be an object", nil)
+		return nil, req.ID, rpcErr, err
+	default:
+		// For empty object or other types
+		if p == struct{}{} {
+			return &ListResourcesParams{}, req.ID, nil, nil
+		}
+		
+		// Try to marshal whatever it is
+		var err error
+		rawParams, err = json.Marshal(p)
+		if err != nil {
+			err = fmt.Errorf("failed to marshal unknown params type %T: %w", p, err)
+			logger.Println("ERROR", err.Error())
+			rpcErr := NewRPCError(ErrorCodeInvalidParams, "Invalid params format", nil)
+			return nil, req.ID, rpcErr, err
+		}
+	}
+
+	// Skip unmarshaling if we have an empty object
+	if string(rawParams) == "{}" || string(rawParams) == "null" {
+		return &ListResourcesParams{}, req.ID, nil, nil
+	}
+
+	// Unmarshal the params
+	if err := json.Unmarshal(rawParams, &params); err != nil {
+		err = fmt.Errorf("failed to unmarshal ListResourcesParams: %w", err)
+		logger.Println("ERROR", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Invalid parameters format", err.Error())
+		return nil, req.ID, rpcErr, err
+	}
+
+	// Successfully parsed and validated
+	return &params, req.ID, nil, nil
 }
 
 // ============================================

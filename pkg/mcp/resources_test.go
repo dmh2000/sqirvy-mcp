@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"encoding/json"
+	"io"
 	"reflect"
 	"testing"
 )
@@ -180,6 +181,105 @@ func TestUnmarshalListResourcesTemplatesResponse(t *testing.T) {
 			}
 			if !reflect.DeepEqual(gotResult, tt.wantResult) {
 				t.Errorf("UnmarshalListResourcesTemplatesResponse() gotResult = %+v, want %+v", gotResult, tt.wantResult)
+			}
+		})
+	}
+}
+
+func TestUnmarshalListResourcesRequest(t *testing.T) {
+	// Create a test logger that discards output
+	testLogger := utils.New(io.Discard, "", 0, "DEBUG")
+	
+	tests := []struct {
+		name       string
+		payload    string
+		wantParams *ListResourcesParams
+		wantID     RequestID
+		wantRPCErr bool
+		wantErr    bool
+	}{
+		{
+			name:       "valid request with empty params",
+			payload:    `{"jsonrpc":"2.0","method":"resources/list","params":{},"id":"test1"}`,
+			wantParams: &ListResourcesParams{},
+			wantID:     "test1",
+		},
+		{
+			name:       "valid request with cursor",
+			payload:    `{"jsonrpc":"2.0","method":"resources/list","params":{"cursor":"next-page-token"},"id":42}`,
+			wantParams: &ListResourcesParams{Cursor: "next-page-token"},
+			wantID:     float64(42),
+		},
+		{
+			name:       "valid request with null params",
+			payload:    `{"jsonrpc":"2.0","method":"resources/list","params":null,"id":"test2"}`,
+			wantParams: &ListResourcesParams{},
+			wantID:     "test2",
+		},
+		{
+			name:       "invalid json",
+			payload:    `{"jsonrpc":"2.0","method":"resources/list","params":{},"id":`,
+			wantRPCErr: true,
+			wantErr:    true,
+		},
+		{
+			name:       "wrong method",
+			payload:    `{"jsonrpc":"2.0","method":"wrong/method","params":{},"id":"test3"}`,
+			wantRPCErr: true,
+			wantErr:    true,
+			wantID:     "test3",
+		},
+		{
+			name:       "wrong jsonrpc version",
+			payload:    `{"jsonrpc":"1.0","method":"resources/list","params":{},"id":"test4"}`,
+			wantRPCErr: true,
+			wantErr:    true,
+			wantID:     "test4",
+		},
+		{
+			name:       "invalid params type",
+			payload:    `{"jsonrpc":"2.0","method":"resources/list","params":"invalid","id":"test5"}`,
+			wantRPCErr: true,
+			wantErr:    true,
+			wantID:     "test5",
+		},
+		{
+			name:       "invalid params structure",
+			payload:    `{"jsonrpc":"2.0","method":"resources/list","params":{"invalid":123},"id":"test6"}`,
+			wantParams: &ListResourcesParams{},
+			wantID:     "test6",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotParams, gotID, gotRPCErr, gotErr := UnmarshalListResourcesRequest([]byte(tt.payload), testLogger)
+			
+			// Check error conditions
+			if (gotErr != nil) != tt.wantErr {
+				t.Errorf("UnmarshalListResourcesRequest() error = %v, wantErr %v", gotErr, tt.wantErr)
+				return
+			}
+			if (gotRPCErr != nil) != tt.wantRPCErr {
+				t.Errorf("UnmarshalListResourcesRequest() rpcErr = %v, wantRPCErr %v", gotRPCErr, tt.wantRPCErr)
+				return
+			}
+			
+			// If we expect errors, don't check the other returns
+			if tt.wantErr || tt.wantRPCErr {
+				// But do check ID if specified
+				if tt.wantID != nil && !reflect.DeepEqual(gotID, tt.wantID) {
+					t.Errorf("UnmarshalListResourcesRequest() gotID = %v, want %v", gotID, tt.wantID)
+				}
+				return
+			}
+			
+			// Check returned values
+			if !reflect.DeepEqual(gotParams, tt.wantParams) {
+				t.Errorf("UnmarshalListResourcesRequest() gotParams = %v, want %v", gotParams, tt.wantParams)
+			}
+			if !reflect.DeepEqual(gotID, tt.wantID) {
+				t.Errorf("UnmarshalListResourcesRequest() gotID = %v, want %v", gotID, tt.wantID)
 			}
 		})
 	}
