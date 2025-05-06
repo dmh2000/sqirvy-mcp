@@ -81,6 +81,8 @@ type ListResourcesTemplatesResult struct {
 
 // ReadResourceParams defines the parameters for a "resources/read" request.
 type ReadResourceParams struct {
+	// Meta contains reserved protocol metadata.
+	Meta map[string]interface{} `json:"_meta,omitempty"`
 	// URI is the identifier of the resource to read.
 	URI string `json:"uri"`
 }
@@ -365,48 +367,95 @@ func MarshalReadResourcesRequest(id RequestID, params ReadResourceParams) ([]byt
 // It unmarshals the entire request and specifically parses the `params` field into ReadResourceParams.
 // It returns the parsed parameters, the request ID, any RPC error encountered during parsing, and a general parsing error.
 func UnmarshalReadResourceRequest(payload []byte, logger *utils.Logger) (*ReadResourceParams, RequestID, *RPCError, error) {
+	// First, unmarshal the base request structure
 	var req RPCRequest
 	if err := json.Unmarshal(payload, &req); err != nil {
 		err = fmt.Errorf("failed to unmarshal base read resource request: %w", err)
 		logger.Println("ERROR", err.Error())
 		rpcErr := NewRPCError(ErrorCodeParseError, err.Error(), nil)
-		// Return nil params, nil ID (as we couldn't parse it), the RPC error, and the Go error
 		return nil, nil, rpcErr, err
 	}
 
-	// Now, unmarshal the Params field specifically into ReadResourceParams
+	// Verify the method is correct
+	if req.Method != MethodReadResource {
+		err := fmt.Errorf("incorrect method in request: got %s, expected %s", req.Method, MethodReadResource)
+		logger.Println("ERROR", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidRequest, err.Error(), nil)
+		return nil, req.ID, rpcErr, err
+	}
+
+	// Verify JSONRPC version
+	if req.JSONRPC != JSONRPCVersion {
+		err := fmt.Errorf("incorrect JSON-RPC version: got %s, expected %s", req.JSONRPC, JSONRPCVersion)
+		logger.Println("ERROR", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidRequest, err.Error(), nil)
+		return nil, req.ID, rpcErr, err
+	}
+
+	// Now, handle the params field
 	var params ReadResourceParams
 
-	// Handle cases where params might be missing or explicitly null in the JSON
-	rawParams, ok := req.Params.(json.RawMessage)
-	if !ok && rawParams != nil {
-		logger.Println(fmt.Sprintf("%v:%v", req.Params, rawParams))
-		// This case means Params was not a JSON object/array/null, which is invalid for this method.
-		err := fmt.Errorf("invalid type for params field: expected JSON object, got %T:%v", req.Params, req.Params)
+	// Try to convert params to json.RawMessage for unmarshaling
+	var rawParams json.RawMessage
+
+	// Handle different types of params
+	switch p := req.Params.(type) {
+	case json.RawMessage:
+		rawParams = p
+	case map[string]interface{}:
+		// If it's already a map, marshal it back to JSON
+		var err error
+		rawParams, err = json.Marshal(p)
+		if err != nil {
+			err = fmt.Errorf("failed to re-marshal params map: %w", err)
+			logger.Println("ERROR", err.Error())
+			rpcErr := NewRPCError(ErrorCodeInternalError, "Internal error processing params", nil)
+			return nil, req.ID, rpcErr, err
+		}
+	case string:
+		// If it's a string (shouldn't happen for this method), treat as error
+		err := fmt.Errorf("invalid params type: string")
 		logger.Println("ERROR", err.Error())
-		// Use InvalidRequest as the structure itself is wrong if params isn't marshalable
-		rpcErr := NewRPCError(ErrorCodeInvalidRequest, "Invalid params field type", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Params must be an object", nil)
+		return nil, req.ID, rpcErr, err
+	default:
+		// For empty object or other types
+		if p == struct{}{} {
+			// For ReadResource, empty params are invalid - URI is required
+			err := fmt.Errorf("missing required params for method %s", MethodReadResource)
+			logger.Println("ERROR", err.Error())
+			rpcErr := NewRPCError(ErrorCodeInvalidParams, "Missing required parameters", nil)
+			return nil, req.ID, rpcErr, err
+		}
+
+		// Try to marshal whatever it is
+		var err error
+		rawParams, err = json.Marshal(p)
+		if err != nil {
+			err = fmt.Errorf("failed to marshal unknown params type %T: %w", p, err)
+			logger.Println("ERROR", err.Error())
+			rpcErr := NewRPCError(ErrorCodeInvalidParams, "Invalid params format", nil)
+			return nil, req.ID, rpcErr, err
+		}
+	}
+
+	// For ReadResource, empty params object is invalid - URI is required
+	if string(rawParams) == "{}" || string(rawParams) == "null" {
+		err := fmt.Errorf("missing required params for method %s", MethodReadResource)
+		logger.Println("ERROR", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Missing required parameters", nil)
 		return nil, req.ID, rpcErr, err
 	}
 
-	// For ReadResource, the 'params' object itself is required and must contain 'uri'.
-	if len(rawParams) == 0 || string(rawParams) == "null" {
-		err := fmt.Errorf("missing required params field for method %s", MethodReadResource)
-		logger.Println("ERROR", err.Error())
-		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Missing required parameters object", nil)
-		return nil, req.ID, rpcErr, err
-	}
-
-	// Attempt to unmarshal the params
+	// Unmarshal the params
 	if err := json.Unmarshal(rawParams, &params); err != nil {
-		err = fmt.Errorf("failed to unmarshal ReadResourceParams from request params: %w", err)
+		err = fmt.Errorf("failed to unmarshal ReadResourceParams: %w", err)
 		logger.Println("ERROR", err.Error())
-		// Use InvalidParams error code as the request structure was valid, but params content wasn't
-		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Invalid parameters for resources/read", err.Error())
+		rpcErr := NewRPCError(ErrorCodeInvalidParams, "Invalid parameters format", err.Error())
 		return nil, req.ID, rpcErr, err
 	}
 
-	// Validate required fields within params (e.g., URI must not be empty)
+	// Validate required fields (URI must not be empty)
 	if params.URI == "" {
 		err := fmt.Errorf("missing required 'uri' field in params for method %s", MethodReadResource)
 		logger.Println("ERROR", err.Error())
@@ -414,7 +463,7 @@ func UnmarshalReadResourceRequest(payload []byte, logger *utils.Logger) (*ReadRe
 		return nil, req.ID, rpcErr, err
 	}
 
-	// Successfully parsed and validated params
+	// Successfully parsed and validated
 	return &params, req.ID, nil, nil
 }
 
