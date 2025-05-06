@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	tools "sqirvy-mcp/cmd/mcp-server/tools"
+	tools "sqirvy-mcp/cmd/sqirvy-mcp/tools"
 	mcp "sqirvy-mcp/pkg/mcp"
 )
 

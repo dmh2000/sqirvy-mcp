@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	// Added for crypto/rand.Int
-	resources "sqirvy-mcp/cmd/mcp-server/resources"
+	resources "sqirvy-mcp/cmd/sqirvy-mcp/resources"
 	mcp "sqirvy-mcp/pkg/mcp"
 	// Import the custom logger
 )

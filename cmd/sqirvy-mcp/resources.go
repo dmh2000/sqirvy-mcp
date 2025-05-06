@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	// prompts "sqirvy/cmd/mcp-server/prompts"
-	resources "sqirvy-mcp/cmd/mcp-server/resources"
+	resources "sqirvy-mcp/cmd/sqirvy-mcp/resources"
 	mcp "sqirvy-mcp/pkg/mcp"
 )
 

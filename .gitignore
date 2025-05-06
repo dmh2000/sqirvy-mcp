@@ -1,5 +1,4 @@
 .aider*
-cmd/bin/mcp-server
-cmd/bin/mcp-server.log
+build
 CLAUDE.md
 

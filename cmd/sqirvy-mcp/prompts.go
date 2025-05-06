@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	// prompts "sqirvy/cmd/mcp-server/prompts"
-	prompts "sqirvy-mcp/cmd/mcp-server/prompts"
+	prompts "sqirvy-mcp/cmd/sqirvy-mcp/prompts"
 	mcp "sqirvy-mcp/pkg/mcp"
 )
 

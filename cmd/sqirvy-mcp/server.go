@@ -10,7 +10,7 @@ import (
 
 	// Use the absolute module path
 	"bytes" // Added for peekMessageType
-	resources "sqirvy-mcp/cmd/mcp-server/resources"
+	resources "sqirvy-mcp/cmd/sqirvy-mcp/resources"
 	mcp "sqirvy-mcp/pkg/mcp"
 	utils "sqirvy-mcp/pkg/utils"
 )
