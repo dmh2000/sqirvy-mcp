@@ -1,0 +1,19 @@
+# MCP Server Configuration
+
+# Logging configuration
+log:
+  # Log level (DEBUG, INFO)
+  level: INFO
+  # Path to log file
+  output: sqirvy-mcp.log
+
+# Project configuration
+project:
+  # Root path for file resources
+  rootPath: resources
+
+# Tools configuration
+tools:
+  ping:
+    # Target IP for ping tool
+    target: 8.8.8.8

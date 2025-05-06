@@ -84,7 +84,7 @@ func TestMarshalListResourcesTemplatesRequest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := MarshalListResourcesTemplatesResult(tt.id, tt.params)
+			got, err := MarshalListResourcesTemplatesRequest(tt.id, tt.params)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("MarshalListResourcesTemplatesRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return

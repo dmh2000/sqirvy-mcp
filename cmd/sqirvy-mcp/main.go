@@ -16,9 +16,9 @@ import (
 func main() {
 	// --- Command Line Flags ---
 	configPath := flag.String("config", "", "Path to the configuration file")
-	logFilePath := flag.String("log", "", "Path to the log file (overrides config file)")
-	logLevel := flag.String("log-level", "", "Log level: DEBUG or INFO (overrides config file)")
-	projectRoot := flag.String("project-root", "", "Root path for file resources (overrides config file)")
+	logFilePath := flag.String("log", "./sqirvy-mcp.log", "Path to the log file (overrides config file)")
+	logLevel := flag.String("log-level", "INFO", "Log level: DEBUG,INFO,WARNING,ERROR (overrides config file)")
+	projectRoot := flag.String("project-root", ".", "Root path for file resources (overrides config file)")
 	// Ping target flag removed as it's now provided by the client
 	flag.Parse()
 

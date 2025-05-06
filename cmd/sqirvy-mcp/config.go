@@ -54,8 +54,8 @@ func DefaultConfig() *Config {
 
 // Configuration file constants
 const (
-	defaultConfigFileName = ".mcp-server"
-	configDirName         = "mcp-server"
+	defaultConfigFileName = ".sqirvy-mcp"
+	configDirName         = "sqirvy-mcp"
 )
 
 // ValidateConfig validates the configuration values

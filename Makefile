@@ -4,6 +4,7 @@
 
 SILENT=-s
 BUILD_DIR=build
+RELEASE_DIR=release
 
 all: build test
 
@@ -24,3 +25,8 @@ clean:
 	@$(MAKE) $(SILENT) -C pkg clean
 	@$(MAKE) $(SILENT) -C cmd clean
 	@-rm -rf $(BUILD_DIR)
+
+release: build test
+	@echo "Building release binaries"
+	@mkdir -p $(RELEASE_DIR)
+	@$(MAKE) $(SILENT) -C cmd release

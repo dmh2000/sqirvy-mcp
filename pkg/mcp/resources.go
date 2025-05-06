@@ -208,6 +208,27 @@ func UnmarshalListResourcesRequest(id RequestID, payload []byte, logger *utils.L
 // RESOURCES TEMPLATES
 // ============================================
 
+// MarshalListResourcesTemplatesRequest creates a JSON-RPC request for the resources/templates/list method.
+// Intended for use by the client.
+// The id can be a string or an integer. If params is nil, default empty params will be used.
+func MarshalListResourcesTemplatesRequest(id RequestID, params *ListResourcesTemplatesParams) ([]byte, error) {
+	// Use default empty params if nil is provided
+	var p interface{}
+	if params != nil {
+		p = params
+	} else {
+		p = struct{}{} // Empty object for params if none specified
+	}
+
+	req := RPCRequest{
+		JSONRPC: JSONRPCVersion,
+		Method:  MethodListResourcesTemplates,
+		Params:  p,
+		ID:      id,
+	}
+	return json.Marshal(req)
+}
+
 // UnmarshalListResourcesTemplatesResult parses a JSON-RPC response for a resources/templates/list request.
 // Intended for use by the client.
 // It expects the standard JSON-RPC response format with the result nested in the "result" field.
@@ -234,24 +255,15 @@ func UnmarshalListResourcesTemplatesResult(data []byte) (*ListResourcesTemplates
 	return &result, resp.ID, nil, nil
 }
 
-// MarshalListResourcesTemplatesResult creates a JSON-RPC request for the resources/templates/list method.
-// Intended for use by the server to marshal the *request* parameters (likely a mistake in original code, should marshal a *result*).
-func MarshalListResourcesTemplatesResult(id RequestID, params *ListResourcesTemplatesParams) ([]byte, error) {
-
-	var p interface{}
-	if params != nil {
-		p = params
-	} else {
-		p = struct{}{} // Empty object for params if none specified
+// MarshalListResourcesTemplatesResult creates a JSON-RPC response containing the result of a resources/templates/list request.
+// Intended for use by the server.
+// It wraps the provided list of resource templates and cursor into a ListResourcesTemplatesResult and marshals it into a standard RPCResponse.
+func MarshalListResourcesTemplatesResult(id RequestID, templatesListp []ResourcesTemplates, cursor string, logger *utils.Logger) ([]byte, error) {
+	result := ListResourcesTemplatesResult{
+		ResourcesTemplates: templatesListp,
+		NextCursor:         cursor,
 	}
-
-	req := RPCRequest{
-		JSONRPC: JSONRPCVersion,
-		Method:  MethodListResourcesTemplates,
-		Params:  p,
-		ID:      id,
-	}
-	return json.Marshal(req)
+	return MarshalResponse(id, result, logger)
 }
 
 // ============================================
@@ -290,9 +302,10 @@ func UnmarshalReadResourceRequest(payload []byte, logger *utils.Logger) (*ReadRe
 
 	// Handle cases where params might be missing or explicitly null in the JSON
 	rawParams, ok := req.Params.(json.RawMessage)
-	if !ok && req.Params != nil {
+	if !ok && rawParams != nil {
+		logger.Println(fmt.Sprintf("%v:%v", req.Params, rawParams))
 		// This case means Params was not a JSON object/array/null, which is invalid for this method.
-		err := fmt.Errorf("invalid type for params field: expected JSON object, got %T", req.Params)
+		err := fmt.Errorf("invalid type for params field: expected JSON object, got %T:%v", req.Params, req.Params)
 		logger.Println("ERROR", err.Error())
 		// Use InvalidRequest as the structure itself is wrong if params isn't marshalable
 		rpcErr := NewRPCError(ErrorCodeInvalidRequest, "Invalid params field type", err.Error())

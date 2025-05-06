@@ -1,4 +1,6 @@
 .aider*
 build
+release
+*.log
 CLAUDE.md
 
