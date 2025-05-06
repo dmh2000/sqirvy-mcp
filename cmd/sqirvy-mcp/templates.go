@@ -21,6 +21,13 @@ var RandomDataTemplate mcp.ResourcesTemplates = mcp.ResourcesTemplates{
 	MimeType:    "text/plain",
 }
 
+var HttpTemplate mcp.ResourcesTemplates = mcp.ResourcesTemplates{
+	Name:        "http",
+	URITemplate: "http://{host}/{path}",
+	Description: "fetch an http resource",
+	MimeType:    "text/html",
+}
+
 // handleRandomDataResource processes a read request specifically for the data://random_data URI.
 // It extracts the length, generates data, and marshals the response or error.
 func (s *Server) handleRandomDataResource(id mcp.RequestID, params mcp.ReadResourceParams, parsedURI *url.URL) ([]byte, error) {

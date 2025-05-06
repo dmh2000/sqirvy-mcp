@@ -12,8 +12,8 @@ import (
 
 // Define the example file resource as a package-level variable
 var exampleFileResource mcp.Resource = mcp.Resource{
-	Name:        "example.txt", // A user-friendly name
-	URI:         "file:///documents/example.txt",
+	Name:        "example.txt",                   // A user-friendly name
+	URI:         "file:///documents/example.txt", // set -project-root to this location
 	Description: "An example text file.",
 	MimeType:    "text/plain", // Assuming text/plain
 	// Size could be determined by os.Stat if needed
@@ -93,36 +93,3 @@ func (s *Server) handleReadResource(id mcp.RequestID, payload []byte) ([]byte, e
 
 	return s.marshalResponse(id, result)
 }
-
-// --- Prepare successful response ---
-// Create the appropriate content structure (Text or Blob)
-// For now, assume text based on our simple ReadFileResource
-// TODO: Add logic to create BlobResourceContents if mimeType indicates binary
-// var resourceContents interface{}
-// if strings.HasPrefix(resourceMimeType, "text/") || resourceMimeType == "application/json" { // Basic check for text
-// 	resourceContents = mcp.TextResourceContents{
-// 		URI:      params.URI,
-// 		MimeType: resourceMimeType,
-// 		Text:     string(resourceContentBytes),
-// 	}
-// } else {
-// 	resourceContents = mcp.BlobResourceContents{
-// 		URI:      params.URI,
-// 		MimeType: resourceMimeType,
-// 		Blob:     base64.StdEncoding.EncodeToString(resourceContentBytes),
-// 	}
-// }
-
-// Marshal the specific content structure (TextResourceContents)
-// contentBytes, err := json.Marshal(resourceContents)
-// if err != nil {
-// 	err = fmt.Errorf("failed to marshal resource contents for %s: %w", params.URI, err)
-// 	s.logger.Println("DEBUG", err.Error())
-// 	rpcErr := mcp.NewRPCError(mcp.ErrorCodeInternalError, err.Error(), nil)
-// 	return s.marshalErrorResponse(id, rpcErr)
-// }
-
-// Create the final result structure containing the marshalled content
-// result := mcp.ReadResourceResult{
-// 	Contents: []json.RawMessage{json.RawMessage(content)},
-// }
