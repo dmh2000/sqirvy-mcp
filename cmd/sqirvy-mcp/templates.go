@@ -89,4 +89,22 @@ func (s *Server) handleRandomDataResource(id mcp.RequestID, params mcp.ReadResou
 
 func (s *Server) handleHttpResource(id mcp.RequestID, params mcp.ReadResourceParams, parsedURI *url.URL) ([]byte, error) {
 	s.logger.Printf("DEBUG", "Processing http resource for URI: %s", params.URI)
+
+	// Delegate to the HTTP reader in resources/http.go
+	resourceContentBytes, resourceMimeType, resourceErr := resources.ReadHTTPResource(params.URI, s.logger)
+	if resourceErr != nil {
+		s.logger.Printf("DEBUG", "Error reading HTTP resource URI '%s': %v", params.URI, resourceErr)
+		rpcErr := mcp.NewRPCError(mcp.ErrorCodeInternalError, resourceErr.Error(), map[string]string{"uri": params.URI})
+		return s.marshalErrorResponse(id, rpcErr)
+	}
+
+	result, err := mcp.NewReadResourcesResult(params.URI, resourceMimeType, resourceContentBytes)
+	if err != nil {
+		err = fmt.Errorf("failed to create read resource result for %s: %w", params.URI, err)
+		s.logger.Println("DEBUG", err.Error())
+		rpcErr := mcp.NewRPCError(mcp.ErrorCodeInternalError, err.Error(), nil)
+		return s.marshalErrorResponse(id, rpcErr)
+	}
+
+	return s.marshalResponse(id, result)
 }
