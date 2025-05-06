@@ -1,0 +1,1 @@
+in cmd/sqirvy-mcp/Makefile, add a rule called "release". in this rule, it should build the application for all targets, including 'linux', 'windows', 'macos intel' and 'macos apple silicon'. all the builds should write their binary output to $(RELEASE_DIR)

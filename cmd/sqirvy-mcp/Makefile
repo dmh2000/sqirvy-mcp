@@ -1,15 +1,15 @@
 .PHONY: build test clean
 
-BUILD := $(if $(value BUILD),$(BUILD),../../build)
+BUILD_DIR := $(if $(value BUILD_DIR),$(BUILD_DIR),../../build)
 
 build:
 	echo "Building mcp-server"
 	staticcheck ./...
-	go build  -o $(BUILD)/sqirvy-mcp .
+	go build  -o $(BUILD_DIR)/sqirvy-mcp .
 
 test:
 	@echo "no tests"
 
 clean:
-	@rm -f $(BUILD)/sqirvy-mcp.log
+	@rm -f $(BUILD_DIR)/sqirvy-mcp.log
 

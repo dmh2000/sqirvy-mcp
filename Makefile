@@ -3,13 +3,13 @@
 .PHONY: all build test clean
 
 SILENT=-s
-BUILD=build
+BUILD_DIR=build
 
 all: build test
 
 build:
 	@echo "Building sqirvy-mcp project..."
-	@mkdir -p $(BUILD)
+	@mkdir -p $(BUILD_DIR)
 	@touch build/sqirvy-mcp.log
 	@$(MAKE) $(SILENT) -C pkg build
 	@$(MAKE) $(SILENT) -C cmd build
@@ -23,4 +23,4 @@ clean:
 	@echo "Cleaning sqirvy-mcp project..."
 	@$(MAKE) $(SILENT) -C pkg clean
 	@$(MAKE) $(SILENT) -C cmd clean
-	@-rm -rf $(BUILD)
+	@-rm -rf $(BUILD_DIR)

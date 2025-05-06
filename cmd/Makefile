@@ -2,7 +2,7 @@
 
 .PHONY: all build test clean
 
-BUILD := $(if $(value BUILD),$(BUILD),../build)
+BUILD_DIR := $(if $(value BUILD_DIR),$(BUILD_DIR),../build)
 
 all: build test
 
