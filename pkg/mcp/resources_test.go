@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"reflect"
+	utils "sqirvy-mcp/pkg/utils"
 	"testing"
 )
 
@@ -189,7 +190,7 @@ func TestUnmarshalListResourcesTemplatesResponse(t *testing.T) {
 func TestUnmarshalListResourcesRequest(t *testing.T) {
 	// Create a test logger that discards output
 	testLogger := utils.New(io.Discard, "", 0, "DEBUG")
-	
+
 	tests := []struct {
 		name       string
 		payload    string
@@ -254,7 +255,7 @@ func TestUnmarshalListResourcesRequest(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotParams, gotID, gotRPCErr, gotErr := UnmarshalListResourcesRequest([]byte(tt.payload), testLogger)
-			
+
 			// Check error conditions
 			if (gotErr != nil) != tt.wantErr {
 				t.Errorf("UnmarshalListResourcesRequest() error = %v, wantErr %v", gotErr, tt.wantErr)
@@ -264,7 +265,7 @@ func TestUnmarshalListResourcesRequest(t *testing.T) {
 				t.Errorf("UnmarshalListResourcesRequest() rpcErr = %v, wantRPCErr %v", gotRPCErr, tt.wantRPCErr)
 				return
 			}
-			
+
 			// If we expect errors, don't check the other returns
 			if tt.wantErr || tt.wantRPCErr {
 				// But do check ID if specified
@@ -273,7 +274,7 @@ func TestUnmarshalListResourcesRequest(t *testing.T) {
 				}
 				return
 			}
-			
+
 			// Check returned values
 			if !reflect.DeepEqual(gotParams, tt.wantParams) {
 				t.Errorf("UnmarshalListResourcesRequest() gotParams = %v, want %v", gotParams, tt.wantParams)

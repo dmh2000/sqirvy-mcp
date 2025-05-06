@@ -253,7 +253,7 @@ func UnmarshalListResourcesRequest(payload []byte, logger *utils.Logger) (*ListR
 		if p == struct{}{} {
 			return &ListResourcesParams{}, req.ID, nil, nil
 		}
-		
+
 		// Try to marshal whatever it is
 		var err error
 		rawParams, err = json.Marshal(p)
