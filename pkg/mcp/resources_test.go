@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"reflect"
-	utils "sqirvy-mcp/pkg/utils"
+	"sqirvy-mcp/pkg/utils"
 	"testing"
 )
 

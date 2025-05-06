@@ -226,7 +226,6 @@ func UnmarshalListResourcesRequest(payload []byte, logger *utils.Logger) (*ListR
 
 	// Try to convert params to json.RawMessage for unmarshaling
 	var rawParams json.RawMessage
-	var ok bool
 
 	// Handle different types of params
 	switch p := req.Params.(type) {
