@@ -86,3 +86,7 @@ func (s *Server) handleRandomDataResource(id mcp.RequestID, params mcp.ReadResou
 	}
 	return s.marshalResponse(id, result)
 }
+
+func (s *Server) handleHttpResource(id mcp.RequestID, params mcp.ReadResourceParams, parsedURI *url.URL) ([]byte, error) {
+	s.logger.Printf("DEBUG", "Processing http resource for URI: %s", params.URI)
+}
