@@ -23,7 +23,7 @@ var RandomDataTemplate mcp.ResourcesTemplates = mcp.ResourcesTemplates{
 
 var HttpTemplate mcp.ResourcesTemplates = mcp.ResourcesTemplates{
 	Name:        "http",
-	URITemplate: "http://{host}/{path}",
+	URITemplate: "{proto}://{host}/{path}",
 	Description: "fetch an http resource",
 	MimeType:    "text/html",
 }
@@ -88,7 +88,7 @@ func (s *Server) handleRandomDataResource(id mcp.RequestID, params mcp.ReadResou
 }
 
 func (s *Server) handleHttpResource(id mcp.RequestID, params mcp.ReadResourceParams, parsedURI *url.URL) ([]byte, error) {
-	s.logger.Printf("DEBUG", "Processing http resource for URI: %s", params.URI)
+	s.logger.Printf("DEBUG", "Processing http resource for URI: %s:%v", params.URI, parsedURI)
 
 	// Delegate to the HTTP reader in resources/http.go
 	resourceContentBytes, resourceMimeType, resourceErr := resources.ReadHTTPResource(params.URI, s.logger)

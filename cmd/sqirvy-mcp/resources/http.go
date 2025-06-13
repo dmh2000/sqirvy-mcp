@@ -12,7 +12,7 @@ import (
 // ReadHTTPResource fetches data from the specified HTTP URL and returns
 // the raw bytes, MIME type, and any error encountered.
 func ReadHTTPResource(uri string, logger *utils.Logger) ([]byte, string, error) {
-	logger.Printf("DEBUG", "Fetching HTTP resource: %s", uri)
+	logger.Printf("ERROR", "Fetching HTTP resource: %s", uri)
 
 	// Create an HTTP client with reasonable timeouts
 	client := &http.Client{
@@ -27,6 +27,8 @@ func ReadHTTPResource(uri string, logger *utils.Logger) ([]byte, string, error) 
 
 	// Set a user agent to identify the client
 	req.Header.Set("User-Agent", "Sqirvy-MCP/1.0")
+
+	logger.Printf("ERROR", "request headers: %v:%v", req.URL, req.Header)
 
 	// Execute the request
 	resp, err := client.Do(req)
@@ -53,6 +55,6 @@ func ReadHTTPResource(uri string, logger *utils.Logger) ([]byte, string, error) 
 		mimeType = "application/octet-stream"
 	}
 
-	logger.Printf("DEBUG", "Successfully fetched HTTP resource (%d bytes, type: %s)", len(content), mimeType)
+	logger.Printf("ERROR", "Successfully fetched HTTP resource (%d bytes, type: %s)", len(content), mimeType)
 	return content, mimeType, nil
 }

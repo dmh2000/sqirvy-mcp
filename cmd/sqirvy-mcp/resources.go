@@ -60,6 +60,10 @@ func (s *Server) handleReadResource(id mcp.RequestID, payload []byte) ([]byte, e
 		// Delegate to the file reader in resources/read.go
 		resourceContentBytes, resourceMimeType, resourceErr = resources.ReadFileResource(params.URI, s.logger)
 
+	case "http", "https":
+		// Delegate to handler
+		return s.handleHttpResource(id, *params, parsedURI)
+
 	default:
 		// Scheme not supported
 		resourceErr = fmt.Errorf("resource URI scheme '%s' not supported", parsedURI.Scheme)

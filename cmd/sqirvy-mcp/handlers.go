@@ -265,7 +265,7 @@ func (s *Server) handleListResourcesTemplates(id mcp.RequestID) ([]byte, error) 
 	s.logger.Printf("DEBUG", "Handle  : resources/templates/list request (ID: %v)", id)
 
 	// TODO: Add other resource templates here if needed
-	templates := []mcp.ResourcesTemplates{RandomDataTemplate}
+	templates := []mcp.ResourcesTemplates{RandomDataTemplate, HttpTemplate}
 
 	result := mcp.ListResourcesTemplatesResult{
 		ResourcesTemplates: templates,
