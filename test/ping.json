@@ -1,0 +1,76 @@
+{
+  "messages": [
+    {
+      "agent": "mcp-inspector",
+      "jsonrpc": "2.0",
+      "id": 0,
+      "method": "initialize",
+      "params": {
+        "protocolVersion": "2025-06-18",
+        "capabilities": { "sampling": {}, "roots": { "listChanged": true } },
+        "clientInfo": { "name": "mcp-inspector", "version": "0.15.0" }
+      }
+    },
+    { "jsonrpc": "2.0", "method": "notifications/initialized" },
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "tools/list",
+      "params": { "_meta": { "progressToken": 1 } }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "tools": [
+          {
+            "description": "Pings the network address once.",
+            "inputSchema": {
+              "properties": {
+                "address": {
+                  "description": "The IP address or hostname to ping",
+                  "type": "string"
+                }
+              },
+              "required": ["address"],
+              "type": "object"
+            },
+            "name": "ping"
+          }
+        ]
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "method": "tools/call",
+      "params": {
+        "_meta": { "progressToken": 2 },
+        "name": "ping",
+        "arguments": {}
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "method": "tools/call",
+      "params": {
+        "_meta": { "progressToken": 3 },
+        "name": "ping",
+        "arguments": { "address": "google.com" }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "content": [
+          {
+            "text": "PING google.com (142.251.46.206) 56(84) bytes of data.\n64 bytes from nuq04s45-in-f14.1e100.net (142.251.46.206): icmp_seq=1 ttl=115 time=29.6 ms\n\n--- google.com ping statistics ---\n1 packets transmitted, 1 received, 0% packet loss, time 0ms\nrtt min/avg/max/mdev = 29.596/29.596/29.596/0.000 ms",
+            "type": "text"
+          }
+        ]
+      }
+    }
+  ]
+}
