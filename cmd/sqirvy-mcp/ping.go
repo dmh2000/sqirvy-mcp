@@ -4,10 +4,10 @@ import (
 	mcp "sqirvy-mcp/pkg/mcp"
 )
 
-// handlePingRequest handles the "ping" request.
+// handlePingRequest handles the MCP Ping request.
 // It simply returns an empty result object as per the spec.
 func (s *Server) handlePingRequest(id mcp.RequestID) ([]byte, error) {
-	// The result for ping is just an empty object.
+	// The result for online is just an empty object.
 	result := map[string]interface{}{} // Empty map represents empty JSON object {}
 
 	// Marshal the successful response using the server's helper

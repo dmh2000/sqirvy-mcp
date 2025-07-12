@@ -14,6 +14,6 @@ project:
 
 # Tools configuration
 tools:
-  ping:
-    # Target IP for ping tool
+  online:
+    # Target IP for online tool
     target: 8.8.8.8

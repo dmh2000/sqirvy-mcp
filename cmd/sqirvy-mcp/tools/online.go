@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func PingHost(host string, timeout time.Duration) (string, error) {
+func OnlineHost(host string, timeout time.Duration) (string, error) {
 	// Use -c 1 for Linux/macOS to send only one packet
 	// Use -W 1 for a 1-second wait time for the reply (adjust if needed)
 	// Consider using platform-specific flags if necessary or a go ping library

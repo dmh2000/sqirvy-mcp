@@ -110,10 +110,10 @@ func (s *Server) handleInitializeRequest(id mcp.RequestID, payload []byte) ([]by
 func (s *Server) handleListTools(id mcp.RequestID) ([]byte, error) {
 	s.logger.Printf("DEBUG", "Handle  : tools/list request (ID: %v)", id)
 
-	// Define the ping tool
-	pingTool := mcp.Tool{
-		Name:        pingToolName, // Use constant from ping.go
-		Description: "Pings the network address once.",
+	// Define the online tool
+	onlineTool := mcp.Tool{
+		Name:        onlineToolName, // Use constant from online.go
+		Description: "Pings the network address once to determine if the system is online.",
 		InputSchema: mcp.ToolInputSchema{
 			"type": "object",
 			"properties": map[string]interface{}{
@@ -127,7 +127,7 @@ func (s *Server) handleListTools(id mcp.RequestID) ([]byte, error) {
 	}
 
 	// TODO: Add other tools here if needed.
-	tools := []mcp.Tool{pingTool}
+	tools := []mcp.Tool{onlineTool}
 
 	result := mcp.ListToolsResult{
 		Tools: tools,
@@ -139,7 +139,7 @@ func (s *Server) handleListTools(id mcp.RequestID) ([]byte, error) {
 
 // handleCallTool parses the tool call request and routes to the specific tool handler.
 // Note: This function is now primarily responsible for parsing and routing.
-// The actual tool logic is delegated (e.g., to handlePingTool).
+// The actual tool logic is delegated (e.g., to handleOnlineTool).
 func (s *Server) handleCallTool(id mcp.RequestID, payload []byte) ([]byte, error) {
 	s.logger.Printf("DEBUG", "Handle  : tools/call request (ID: %v)", id)
 
@@ -173,9 +173,9 @@ func (s *Server) handleCallTool(id mcp.RequestID, payload []byte) ([]byte, error
 
 	// Route based on the tool name
 	switch params.Name {
-	case pingToolName:
-		// Delegate to the specific handler in ping.go
-		return s.handlePingTool(id, params)
+	case onlineToolName:
+		// Delegate to the specific handler in online.go
+		return s.handleOnlineTool(id, params)
 	// Add cases for other tools here
 	// case "another_tool":
 	//     return s.handleAnotherTool(id, params)

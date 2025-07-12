@@ -35,7 +35,7 @@
               "required": ["address"],
               "type": "object"
             },
-            "name": "ping"
+            "name": "online"
           }
         ]
       }
@@ -46,7 +46,7 @@
       "method": "tools/call",
       "params": {
         "_meta": { "progressToken": 2 },
-        "name": "ping",
+        "name": "online",
         "arguments": {}
       }
     },
@@ -56,7 +56,7 @@
       "method": "tools/call",
       "params": {
         "_meta": { "progressToken": 3 },
-        "name": "ping",
+        "name": "online",
         "arguments": { "address": "google.com" }
       }
     },

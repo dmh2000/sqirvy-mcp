@@ -10,13 +10,13 @@ import (
 )
 
 const (
-	pingTimeout  = 5 * time.Second // Timeout for the ping command
-	pingToolName = "ping"
+	onlineTimeout  = 5 * time.Second // Timeout for the online command
+	onlineToolName = "online"
 )
 
-// handlePingTool handles the "tools/call" request specifically for the "ping" tool.
-// It executes the ping command and returns the result or an error.
-func (s *Server) handlePingTool(id mcp.RequestID, params mcp.CallToolParams) ([]byte, error) {
+// handleOnlineTool handles the "tools/call" request specifically for the "online" tool.
+// It executes the online command and returns the result or an error.
+func (s *Server) handleOnlineTool(id mcp.RequestID, params mcp.CallToolParams) ([]byte, error) {
 	s.logger.Printf("DEBUG", "Handle  : tools/call request for '%s' (ID: %v)", params.Name, id)
 
 	// Extract the address parameter
@@ -45,14 +45,14 @@ func (s *Server) handlePingTool(id mcp.RequestID, params mcp.CallToolParams) ([]
 		return s.marshalErrorResponse(id, rpcErr)
 	}
 
-	// Execute the ping command with the provided address
-	output, err := tools.PingHost(address, pingTimeout)
+	// Execute the online command with the provided address
+	output, err := tools.OnlineHost(address, onlineTimeout)
 
 	var result mcp.CallToolResult
 	var content mcp.TextContent
 
 	if err != nil {
-		s.logger.Printf("DEBUG", "Error executing ping to %s: %v", address, err)
+		s.logger.Printf("DEBUG", "Error executing online to %s: %v", address, err)
 		// Ping failed, return the error message in the content
 		content = mcp.TextContent{
 			Type: "text",
@@ -71,7 +71,7 @@ func (s *Server) handlePingTool(id mcp.RequestID, params mcp.CallToolParams) ([]
 	// Marshal the content into json.RawMessage
 	contentBytes, marshalErr := json.Marshal(content)
 	if marshalErr != nil {
-		err = fmt.Errorf("failed to marshal ping result content: %w", marshalErr)
+		err = fmt.Errorf("failed to marshal online result content: %w", marshalErr)
 		s.logger.Println("DEBUG", err.Error())
 		rpcErr := mcp.NewRPCError(mcp.ErrorCodeInternalError, err.Error(), nil)
 		return s.marshalErrorResponse(id, rpcErr) // Return marshalled JSON-RPC error
